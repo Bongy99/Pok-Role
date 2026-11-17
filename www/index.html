@@ -2,7 +2,6 @@
 <html lang="it"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PokéRole – Schede</title>
-<script src="lib/pdf.min.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#b3262b">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -249,28 +248,29 @@ function pathsFromOps(ol,O){const mul=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]
    if(x0>1e8)continue;const p=[[x0,y0],[x1,y1]].map(([x,y])=>[ctm[0]*x+ctm[2]*y+ctm[4],ctm[1]*x+ctm[3]*y+ctm[5]]);
    const w=Math.abs(p[1][0]-p[0][0]),h=Math.abs(p[1][1]-p[0][1]);if(w<24&&h<24)P.push({c:col,x0:Math.min(p[0][0],p[1][0]),x1:Math.max(p[0][0],p[1][0]),y0:Math.min(p[0][1],p[1][1]),y1:Math.max(p[0][1],p[1][1])})}}
  return P}
-async function readPdf(f,st){
+let ERR=[];
+async function readPdf(f,st){ERR=[];
  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,P=mkParserP(),O=pdfjsLib.OPS;
  for(let n=1;n<=pdf.numPages;n++){if(st)st.textContent='Pagina '+n+' di '+pdf.numPages+'…';
   const pg=await pdf.getPage(n),tc=await pg.getTextContent();
   const its=tc.items.filter(t=>t.str!==undefined&&t.transform).map(t=>({str:t.str,x:t.transform[4],y:t.transform[5],h:Math.hypot(t.transform[2],t.transform[3]),w:t.width||0,f:t.fontName}));
   let paths=[];if(n>=100&&its.some(i=>i.str.includes('Type:'))&&its.some(i=>/^Type:/.test(i.str))){try{paths=pathsFromOps(await pg.getOperatorList(),O)}catch(e){}}
-  try{P.page(its,paths,n)}catch(e){}
+  try{P.page(its,paths,n)}catch(e){ERR.push(n+': '+(e&&e.message))}
   try{pg.cleanup()}catch(e){}
   if(n%8==0)await new Promise(r=>setTimeout(r,0))}
  return P.result()}
 const mrg=(a,b,s,key)=>{const m=new Map((a||[]).map(x=>[key(x),x]));for(const x of b){x.s=s;m.set(key(x),x)}return[...m.values()]};
 async function importPdf(files){
- if(typeof pdfjsLib==='undefined'){alert('Il lettore PDF è disponibile solo nell\'app installata (APK o WebApp), non in questa anteprima.');return}
+ if(typeof pdfjsLib==='undefined'){try{window.pdfjsLib=await import('./lib/pdf.js')}catch(e){alert('Il lettore PDF non è disponibile (file lib/pdf.js mancante): '+(e&&e.message||e));return}}
  const st=document.getElementById('imps'),out=[];
- try{if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc='lib/pdf.worker.min.js';
+ try{if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('lib/pdf.worker.js',location.href).href;
   for(const f of files){const s=f.name.replace(/\.pdf$/i,'').replace(/[_\-]+/g,' ').slice(0,50);
    try{const r=await readPdf(f,st);const n=r.dex.length+r.moves.length+r.ab.length;
     if(!n&&!r.book.length){out.push(f.name+': nessun contenuto riconosciuto (formato diverso dal manuale PokéRole).');continue}
     CAT.dex=mrg(CAT.dex,r.dex,s,spKey);CAT.moves=mrg(CAT.moves,r.moves,s,x=>nrm(x.n));CAT.ab=mrg(CAT.ab,r.ab,s,x=>nrm(x.n));
     CAT.book=CAT.book.filter(b=>b.s!==s).concat(r.book.map(b=>Object.assign(b,{s})));if(!CAT.src.includes(s))CAT.src.push(s);CAT.v=1;
     try{await saveCat()}catch(e){out.push('Attenzione: memoria piena, catalogo non salvato.')}
-    out.push(s+': '+r.dex.length+' voci Pokédex, '+r.moves.length+' mosse, '+r.ab.length+' abilità, '+r.book.length+' sezioni di regole')}
+    out.push(s+': '+r.dex.length+' voci Pokédex, '+r.moves.length+' mosse, '+r.ab.length+' abilità, '+r.book.length+' sezioni di regole'+(r.dex.length<300?'\nATTENZIONE: Pokédex incompleto. Errori: '+ERR.length+(ERR[0]?' ('+ERR[0]+')':'')+'. Invia questo messaggio allo sviluppatore.':''))}
    catch(e){out.push(f.name+': errore nella lettura ('+(e&&e.message||e)+')')}}
   alert(out.join('\n'))}
  catch(x){alert('Errore nella lettura del PDF: '+(x&&x.message||x))}

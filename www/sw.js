@@ -1,9 +1,9 @@
 // Service worker: rende l'app utilizzabile completamente offline.
-const CACHE = 'pokerole-v4';
+const CACHE = 'pokerole-v5';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
-  'lib/pdf.min.js', 'lib/pdf.worker.min.js'
+  'lib/pdf.js', 'lib/pdf.worker.js'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(a => c.add(a).catch(() => {})))).then(() => self.skipWaiting()));
