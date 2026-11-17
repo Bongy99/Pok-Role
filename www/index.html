@@ -85,6 +85,7 @@ function mkParserP(){
  const PG=[],LN=[],DEX=[];let DBG=null;
  const fx=s=>String(s||'').replace(/\s+/g,' ').trim();
  // ---------- Pokédex ----------
+ const cleanMv=n=>{n=n.replace(/\s[a-z]$/,'');let m=/^(.+?)(?:\s+\1)+$/i.exec(n);if(m)n=m[1];return n};
  function dex(items,paths,pn){
   const A=items.filter(i=>i.str==='Type:'||/^Type:\s*$/.test(i.str)).sort((a,b)=>b.y-a.y);
   A.forEach((an,k)=>{
@@ -113,7 +114,7 @@ function mkParserP(){
    // mosse: righe tipo+nome
    const typ=B.filter(i=>TS.has(i.str.trim())&&i.h>=8&&i.h<=10&&Math.abs(i.y-an.y)>8);
    typ.forEach(t=>{const nm=B.filter(i=>Math.abs(i.y-t.y)<=2&&i.x>t.x+t.w-2&&i.x<t.x+t.w+60&&i.str.trim()&&!TS.has(i.str.trim())&&i.h>=8&&i.h<=10).sort((a,b)=>a.x-b.x);
-    if(!nm.length)return;const name=fx(nm.map(i=>i.str).join(' '));
+    if(!nm.length)return;const name=cleanMv(fx(nm.map(i=>i.str).join(' ')));
     const cx=t.x+t.w/2,ic=P.filter(p=>p.x0>=cx-58&&p.x1<=cx-14&&(p.y0+p.y1)/2>=t.y-1&&(p.y0+p.y1)/2<=t.y+8&&(p.x1-p.x0)<14);
     USED.add(t);nm.forEach(i=>USED.add(i));e.mv.push({n:name,t:tyN(t.str),r:rankOf(ic),x:t.x,y:t.y})});
    // altezza/peso
@@ -166,7 +167,7 @@ function mkParserP(){
    if(!cat){if(/^Accuracy/i.test((LN[j]||{}).t||'')){cat='?'}else continue}
    let pw='-';const pn=LN.find(l=>l.p==n0.p&&l.c==n0.c&&Math.abs(l.y-n0.y)<8&&l!==n0&&/^[\d\-–]+$/.test(l.t))||n0.xs.find(x=>x.x>n0.x+80&&/^[\d\-–]+$/.test(x.str.trim()));
    if(pn)pw=(pn.t||pn.str).trim();else{const ni=n0.xs.filter(x=>x.x>n0.x+60&&/^[\dx\-–]+$/.test(x.str.trim()));if(ni.length)pw=ni[ni.length-1].str.trim()}
-   if(cat=='?')cat=(pw=='-'?'Support':'');const mv={n:fx(n0.xs.filter(x=>x.h>=15).map(x=>x.str).join(' ')).replace(/^Name\s*/,''),pw,ty:fx(m[1]),cat:fx(cat),ac:'',dm:'',ef:'',d:'',p:n0.p};
+   if(cat=='?')cat=(pw=='-'?'Support':'');const mv={n:cleanMv(fx(n0.xs.filter(x=>x.h>=15).map(x=>x.str).join(' ')).replace(/^Name\s*/,'')),pw,ty:fx(m[1]),cat:fx(cat),ac:'',dm:'',ef:'',d:'',p:n0.p};
    if(!mv.n||/^POWER$/i.test(mv.n))continue;
    let eff=[],fl=[],mode='';
    for(;j<LN.length;j++){const l=LN[j];if(l.p!=n0.p||l.c!=n0.c)break;if(l.h>=15)break;
@@ -203,7 +204,16 @@ function mkParserP(){
    else if(cur)cur.b.push(l.t)}
   if(cur)secs.push(cur);
   return secs.map(s=>({h:s.h,p:s.p,ch:s.ch,d:s.b.join('\n').replace(/-\n([a-z])/g,'$1').replace(/([^.:!?\n])\n(?=[a-z(])/g,'$1 ')})).filter(s=>s.d.length>=60)}
- return{hdr:()=>HDR,dbg:()=>DBG=[],getDbg:()=>DBG,page,lines:()=>LN,dexAll:()=>DEX,moves,abilities,book,RANKS,result(){return{dex:DEX,moves:moves(),ab:abilities(),book:book()}}}
+ function fixDex(D){
+  D.forEach(e=>{if(e.n=='Name'&&/^0+$/.test(e.dex||'0')&&/Dragon Fang/.test(e.evo||'')){e.n='Huntail';e.dex='367'}});
+  const UB={'UB-01 Symbiont':'Nihilego','UB-02 Absorption':'Buzzwole','UB-02 Beauty':'Pheromosa','UB-03 Lightning':'Xurkitree','UB-04 Blaster':'Celesteela','UB-04 Blade':'Kartana','UB-05 Glutton':'Guzzlord','UB- Assembly':'Stakataka','UB- Burst':'Blacephalon'};
+  D.forEach(e=>{if(UB[e.n]){e.alias=UB[e.n]}});
+  const g={};D.forEach(e=>{const k=e.n+'@'+e.p+'@'+e.ty.join();(g[k]=g[k]||[]).push(e)});
+  Object.values(g).forEach(a=>{if(a.length<2)return;
+   if(a[0].n=='Deoxys'&&a.length==4){['Normal','Attack','Defense','Speed'].forEach((f,i)=>a[i].n='Deoxys ('+f+')');return}
+   a.forEach((e,i)=>{e.n=e.n+' (forma '+(i+1)+(e.abt?': '+e.abt:'')+')'})});
+  return D}
+ return{hdr:()=>HDR,dbg:()=>DBG=[],getDbg:()=>DBG,page,lines:()=>LN,dexAll:()=>DEX,moves,abilities,book,RANKS,result(){return{dex:fixDex(DEX),moves:moves(),ab:abilities(),book:book()}}}
 }
 
 
@@ -214,7 +224,12 @@ const idbGet=async k=>{const d=await IDB();return new Promise(res=>{const q=d.tr
 const idbSet=async(k,v)=>{const d=await IDB();return new Promise((res,rej)=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})};
 const saveCat=()=>idbSet('cat',JSON.stringify(CAT));
 (async()=>{try{const j=await idbGet('cat');if(j){const x=JSON.parse(j);if(x&&x.v)CAT=Object.assign(CAT0(),x)}}catch(e){}render()})();
-const fnd=(a,n)=>a.find(x=>nrm(x.n)==nrm(n));
+const lev=(a,b)=>{if(Math.abs(a.length-b.length)>2)return 9;const d=[];for(let i=0;i<=a.length;i++)d[i]=[i];for(let j=0;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]==b[j-1]?0:1));return d[a.length][b.length]};
+const ALIAS={'vice grip':'vise grip','natures power':'nature power'};
+const sq0=n=>{n=nrm(n);return ALIAS[n]||n};
+const fnd=(a,n)=>{const t=sq0(n);if(!t)return null;let r=a.find(x=>nrm(x.n)==t)||a.find(x=>sq0(x.n)==t);if(r)return r;
+ const s=t.replace(/s\b/g,'');r=a.find(x=>nrm(x.n).replace(/s\b/g,'')==s);if(r)return r;
+ if(t.length>=6){let best=null,bd=3;for(const x of a){const d=lev(nrm(x.n),t);if(d<bd){bd=d;best=x}}return best}return null};
 const spKey=e=>e.n+'@'+e.p+'@'+e.ty.join(),SP=c=>CAT.dex.find(e=>spKey(e)==c.sp);
 const mv=n=>fnd(CAT.moves,n),abl=n=>fnd(CAT.ab,n);
 const MAXR=['Starter','Rookie','Standard','Advanced','Expert','Ace','Master','Champion'];
@@ -306,6 +321,7 @@ function derived(c,k){const m=hpMax(c,k),pn=pain(c,k);
  <div class="row" style="margin-top:8px"><button class="o" data-act="heal">Cura completa (PF e Will)</button><button class="o" data-act="init">Tira iniziativa</button></div>
  <p class="mut">PF max = PF base ${baseHP(c,k)} + Vitality${M3(c)?' + 3 (rango Master+)':''}. Will = Insight + 3. Difesa/Dif. Speciale: ${S.opt==2?'opzione 2 (Dif.=Vitality, Dif.Spec.=Insight)':'opzione 1 (entrambe = Vitality)'} (cambia in GM). Bersagli massimi: ${RK[c.rank][5]}.</p></div>
  ${rollCard(c)}${condCard(c)}`}
+let ABALL=false,MVALL=false;
 let RA='Strength',RS='',RX=0,RD=1;
 function rollCard(c){return `<div class="card"><h2>Tiro libero</h2><div class="g"><div><label>Attributo</label><select id="ra">${AK.concat(SO).map(a=>`<option ${a==RA?'selected':''}>${a}</option>`).join('')}</select></div><div><label>Abilità</label><select id="rs"><option value="">—</option>${SKA.map(a=>`<option ${a==RS?'selected':''}>${a}</option>`).join('')}</select></div><div><label>Dadi extra</label><input type="number" id="rx" value="${RX}"></div><div><label>Successi richiesti</label><input type="number" id="rd" value="${RD}" min="0"></div></div><button data-act="rollfree" style="margin-top:8px">🎲 Tira</button><p class="mut">Ogni dado con 4, 5 o 6 è un successo. Con più azioni nello stesso round la difficoltà della n-esima azione è n successi.</p></div>`}
 function condCard(c){const names=statusNames();return `<div class="card"><h2>Status e condizioni</h2>${c.cond.map((n,i)=>`<span class="chip on" data-act="cdel" data-i="${i}" style="cursor:pointer">${esc(n)} ✕</span>`).join('')||'<span class="mut">Nessuno</span>'}<div class="row" style="margin-top:6px"><input type="text" id="cn" list="stl" placeholder="Aggiungi status" style="flex:1"><datalist id="stl">${names.map(n=>`<option>${esc(n)}</option>`).join('')}</datalist><button data-act="cadd">+</button></div></div>`}
@@ -327,8 +343,9 @@ const rankHint=i=>{if(i>=RK.length)return'';const b=CAT.book.find(x=>new RegExp(
 const natList=()=>{const o=CAT.book.filter(b=>NATN.includes(b.h)&&b.p>=46&&b.p<=49).map(b=>b.h);return(o.length?o:NATN)};
 const natOf=n=>{const b=CAT.book.find(x=>x.h==n&&x.p>=46&&x.p<=49);if(!b)return null;const l=b.d.split('\n');return{k:l[0],d:l.slice(1).join(' ')}};
 // ---- Pokémon ----
-function pokeSel(c){const q=nrm(pkq),res=q.length>=2?CAT.dex.filter(e=>nrm(e.n).includes(q)).slice(0,60):[];
- return `<div class="row"><input type="search" id="pkq" placeholder="Cerca specie (es. Pikachu)" value="${esc(pkq)}" style="flex:1"></div>`+(res.length?`<div class="row" style="margin-top:6px"><select id="pksel" style="flex:1">${res.map(e=>`<option value="${esc(spKey(e))}">${e.dex?'#'+e.dex+' ':''}${esc(e.n)} (${e.ty.join('/')})</option>`).join('')}</select><button data-act="pkpick">Scegli</button></div>`:q.length>=2?'<p class="mut">Nessun risultato.</p>':'')}
+const dexMatch=q=>{q=nrm(q);if(q.length<2)return[];return CAT.dex.filter(e=>nrm(e.n+' '+(e.alias||'')).includes(q)||(e.dex&&String(+e.dex)==q.replace(/^0+/,'')&&/^\d+$/.test(q))).slice(0,80)};
+function pkRes(){const res=dexMatch(pkq);return res.length?`<div class="row" style="margin-top:6px"><select id="pksel" style="flex:1">${res.map(e=>`<option value="${esc(spKey(e))}">${e.dex?'#'+e.dex+' ':''}${esc(e.n)}${e.alias?' ['+esc(e.alias)+']':''} (${e.ty.join('/')})</option>`).join('')}</select><button data-act="pkpick">Scegli</button></div>`:nrm(pkq).length>=2?'<p class="mut">Nessun risultato. Prova con una parte del nome o il numero del Pokédex. Se il Pokédex è vuoto, importa il manuale.</p>':''}
+function pokeSel(c){return `<div class="row"><input type="search" id="pkq" placeholder="Cerca specie (nome o numero)" value="${esc(pkq)}" style="flex:1" autocomplete="off"></div><div id="pkres">${pkRes()}</div>`}
 function poke(c){const sp=SP(c),i=S.cur.i;
  const abs=sp?(sp.abt||'').split(/\s*&\s*/).filter(Boolean):[];
  return `<div class="card"><h2>Pokémon</h2><div class="g2">${I('c.nome','Soprannome')}${I('c.tr','Allenatore (nome)')}${SEL('c.rank','Rango',[])}${SEL('c.nat','Nature',natList(),'Scegli…')}</div>
@@ -336,7 +353,7 @@ function poke(c){const sp=SP(c),i=S.cur.i;
  ${pokeSel(c)}
  <div class="row" style="margin-top:8px"><div><label>Felicità (0–5)</label>${dots('happy',c.happy,5,'')}</div><div><label>Lealtà (0–5)</label>${dots('loy',c.loy,5,'')}</div><div><label>Punti Addestramento</label><input type="number" data-p="c.tp" value="${c.tp}" style="width:90px"></div></div></div>`
  .replace(/<select data-p="c.rank"[^]*?<\/select>/,`<select data-p="c.rank" data-rcc data-num>${RK.map((r,i)=>`<option value="${i}" ${i==c.rank?'selected':''}>${r[0]}</option>`).join('')}</select>`)
- +`<div class="card"><h2>Abilità del Pokémon</h2><div class="row"><select data-p="c.ab" data-rcc style="flex:1"><option value="">—</option>${abs.map(a=>`<option ${a==c.ab?'selected':''}>${esc(a)}</option>`).join('')}${CAT.ab.filter(a=>!abs.includes(a.n)).map(a=>`<option ${a.n==c.ab?'selected':''}>${esc(a.n)}</option>`).join('')}</select></div>${c.ab?(a=>a?`<p><i>${nl(a.d)}</i></p><p>${nl(a.ef)}</p>`:'')(abl(c.ab)):''}</div>`
+ +`<div class="card"><h2>Abilità del Pokémon</h2>${abs.length?`<p class="mut">Abilità della specie secondo il manuale.</p>`:'<p class="mut">Scegli prima la specie per avere solo le sue abilità.</p>'}<div class="row"><select data-p="c.ab" data-rcc style="flex:1"><option value="">—</option>${(abs.length&&!ABALL?abs:CAT.ab.map(x=>x.n)).map(a=>`<option ${nrm(a)==nrm(c.ab)?'selected':''}>${esc(a)}</option>`).join('')}${c.ab&&!(abs.length&&!ABALL?abs:CAT.ab.map(x=>x.n)).some(a=>nrm(a)==nrm(c.ab))?`<option selected>${esc(c.ab)}</option>`:''}</select></div>${abs.length?`<label style="display:inline"><input type="checkbox" data-act="aball" ${ABALL?'checked':''}> mostra tutte le abilità del manuale</label>`:''}${c.ab?(a=>a?`<p><i>${nl(a.d)}</i></p><p>${nl(a.ef)}</p>`:'<p class="mut">Descrizione non trovata nel catalogo.</p>')(abl(c.ab)):''}</div>`
  +attrBlock(c,'p')+derived(c,'p')+moveCard(c,sp)
  +`<div class="card"><h2>Strumento e note</h2>${I('c.item','Strumento tenuto')}${T('c.note','Note')}</div>`}
 function moveCard(c,sp){const max=c.at.Insight+3,n=c.moves.length;
@@ -349,8 +366,9 @@ function moveCard(c,sp){const max=c.at.Insight+3,n=c.moves.length;
   <div class="mut">Precisione: ${esc(m.ac)}${ac?' = <b>'+ac.n+'</b> dadi':''}${dm?' · Danno: '+esc(m.dm)+(stab(m)?' +1 (STAB)':'')+' = <b>'+dm.n+'</b> dadi':''}</div>
   <div style="margin:4px 0">${ac?`<button class="s" data-act="macc" data-i="${i}">🎲 Precisione</button> `:''}${dm?`<button class="s o" data-act="mdmg" data-i="${i}">🎲 Danno</button>`:''}</div>
   ${det('Effetto e descrizione',`<p><b>Effetto:</b> ${nl(m.ef)}</p><p><i>${nl(m.d)}</i></p>`)}</div>`}).join('')
- +`<h3>Aggiungi mossa</h3>${learn.length?`<div class="row"><select id="mvl" style="flex:1">${[0,1,2,3,4,5].map(r=>`<optgroup label="Rango ${MAXR[r]}">${learn.filter(m=>m.r==r).map(m=>`<option ${r>c.rank?'style="color:#999"':''}>${esc(m.n)}</option>`).join('')}</optgroup>`).join('')}</select><button data-act="mvadd2">Aggiungi</button></div><p class="mut">Le mosse di un rango superiore al tuo richiedono l’Over-Ranking (vedi INFO → Addestramento).</p>`:''}
- <div class="row" style="margin-top:6px"><input type="search" id="mvq" placeholder="Cerca qualsiasi mossa del Movedex" style="flex:1" value="${esc(mq)}"></div>${mq.length>=2?CAT.moves.filter(m=>nrm(m.n).includes(nrm(mq))).slice(0,12).map(m=>`<div class="sk">${esc(m.n)} ${tp(m.ty)}<button class="s" data-act="mvadd" data-k="${esc(m.n)}">+</button></div>`).join(''):''}
+ +`<h3>Aggiungi mossa</h3>${learn.length?`<p class="mut">Mosse che questa specie può imparare secondo il Pokédex (${learn.length}). Quelle di rango superiore al tuo richiedono l’Over-Ranking.</p><div class="row"><select id="mvl" style="flex:1">${[0,1,2,3,4,5,-1].map(r=>{const l=learn.filter(m=>m.r==r);return l.length?`<optgroup label="${r<0?'Altre':'Rango '+(r==5?'Ace o superiore':MAXR[r])+(r>c.rank?' (superiore al tuo)':'')}">${l.map(m=>`<option value="${esc(m.n)}">${esc(m.n)}${mv(m.n)?' · '+mv(m.n).ty:''}</option>`).join('')}</optgroup>`:''}).join('')}</select><button data-act="mvadd2">Aggiungi</button></div>`:sp?'<p class="mut">Nessuna mossa disponibile: la specie non ha elenco mosse nel catalogo.</p>':'<p class="mut">Scegli prima la specie per vedere solo le sue mosse.</p>'}
+ <label style="display:inline"><input type="checkbox" data-act="mvall" ${MVALL||!sp?'checked':''} ${sp?'':'disabled'}> cerca in tutto il Movedex (mosse non previste dal manuale per la specie)</label>
+ ${MVALL||!sp?`<div class="row" style="margin-top:6px"><input type="search" id="mvq" placeholder="Cerca qualsiasi mossa del Movedex" style="flex:1" value="${esc(mq)}"></div>${mq.length>=2?CAT.moves.filter(m=>nrm(m.n).includes(nrm(mq))).slice(0,12).map(m=>`<div class="sk">${esc(m.n)} ${tp(m.ty)}<button class="s" data-act="mvadd" data-k="${esc(m.n)}">+</button></div>`).join(''):''}`:''}
  <div class="row" style="margin-top:6px"><input type="text" id="mvc" placeholder="Mossa personalizzata" style="flex:1"><button data-act="mvcust">Aggiungi</button></div></div>`}
 // ---- GM ----
 function gmCard(){const g=S.gm,names=statusNames();
@@ -417,7 +435,8 @@ const num=(t,v)=>t.type=='number'?Number(v)||0:v;
 function pset(p,v){if(p.startsWith('c.')){const c=cur();const k=p.slice(2).split('.');const l=k.pop();let o=c;k.forEach(x=>o=o[x]);o[l]=v}else if(p=='HP'||p=='WP'){const c=cur();c[p.toLowerCase()]=v}else put(p,v)}
 document.addEventListener('input',e=>{const t=e.target,p=t.dataset.p;
  if(t.id=='flt'){FLT=t.value;const r=document.getElementById('refl');if(r){clearTimeout(window._ft);window._ft=setTimeout(()=>{const pos=t.selectionStart;render();const n=document.getElementById('flt');n.focus();n.setSelectionRange(pos,pos)},250)}return}
- for(const[id,fn]of[['pkq',v=>pkq=v],['mvq',v=>mq=v],['gsq',v=>sq=v]])if(t.id==id){fn(t.value);const pos=t.selectionStart;render();const n=document.getElementById(id);n.focus();n.setSelectionRange(pos,pos);return}
+ if(t.id=='pkq'){pkq=t.value;const r=document.getElementById('pkres');if(r)r.innerHTML=pkRes();return}
+ for(const[id,fn]of[['mvq',v=>mq=v],['gsq',v=>sq=v]])if(t.id==id){fn(t.value);const pos=t.selectionStart;render();const n=document.getElementById(id);n.focus();n.setSelectionRange(pos,pos);return}
  if(t.dataset.ex!==undefined){cur().ex[+t.dataset.ex].n=t.value;save();return}
  if(!p)return;let v=t.type=='checkbox'?(t.checked?1:0):num(t,t.value);pset(p,v);if(t.dataset.rc!==undefined&&t.type!='number'){render();return}save()});
 document.addEventListener('change',e=>{const t=e.target,p=t.dataset.p;
@@ -454,6 +473,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
  else if(a=='aadd')c.ach.push({t:'',d:0});else if(a=='adel')c.ach.splice(i,1);
  else if(a=='pkpick'){const s=document.getElementById('pksel').value,e=CAT.dex.find(x=>spKey(x)==s);if(e){c.sp=s;pkq='';if(!c.nome)c.nome=e.n;const ri=rankIdx(e.rank);applySp(c,e);c.rank=Math.max(c.rank,0)}}
  else if(a=='applysp'){const e=SP(c);if(e)applySp(c,e)}
+ else if(a=='aball')ABALL=!ABALL;else if(a=='mvall')MVALL=!MVALL;
  else if(a=='mvadd2'){const n=document.getElementById('mvl').value;if(n&&!c.moves.includes(n))c.moves.push(n)}
  else if(a=='mvadd'){if(!c.moves.includes(k))c.moves.push(k);mq=''}
  else if(a=='mvcust'){const n=document.getElementById('mvc').value.trim();if(n)c.moves.push(n)}else if(a=='mvdel')c.moves.splice(i,1);
@@ -471,7 +491,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(
  else if(a=='gcdel')g.list[i].cond.splice(j,1);else if(a=='gact'){const x=g.list[i];x.act=(x.act||0)==v?v-1:v}
  else if(a=='groll'){roll('Dadi',+document.getElementById('gd').value||1,0,0);return}
  render()});
-function applySp(c,e){const mp={FOR:'Strength',DES:'Dexterity',VIT:'Vitality',SPE:'Special',INS:'Insight'};Object.keys(mp).forEach(k=>{if(e.at[k])c.at[mp[k]]=e.at[k]});c.hp=hpMax(c,'p');c.wp=wpMax(c);const ab=(e.abt||'').split(/\s*&\s*/)[0];if(ab&&!c.ab)c.ab=ab}
+function applySp(c,e){const mp={FOR:'Strength',DES:'Dexterity',VIT:'Vitality',SPE:'Special',INS:'Insight'};Object.keys(mp).forEach(k=>{if(e.at[k])c.at[mp[k]]=e.at[k]});c.hp=hpMax(c,'p');c.wp=wpMax(c);const L=(e.abt||'').split(/\s*&\s*/).filter(Boolean);if(L.length&&!L.some(a=>nrm(a)==nrm(c.ab)))c.ab=L[0]}
 render();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')&&location.hostname!=='localhost')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
