@@ -77,7 +77,7 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const cur=()=>S.cur?(S.cur.k=='t'?S.tr:S.pk)[S.cur.i]:null;
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const nl=x=>esc(x).replace(/\n/g,'<br>');
-const get=p=>p.split('.').reduce((o,k)=>o?.[k],S),put=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],S)[l]=v};
+const get=p=>p.startsWith('c.')?p.slice(2).split('.').reduce((o,k)=>o?.[k],cur()):p.split('.').reduce((o,k)=>o?.[k],S),put=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],S)[l]=v};
 const nrm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').trim();
 function mkParserP(){
  const TYPES=['Normal','Fire','Water','Grass','Electric','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'];
@@ -370,9 +370,21 @@ function gmCard(){const g=S.gm,names=statusNames();
 // ---- INFO ----
 const kind=b=>b.map(x=>x);
 function bookList(filter){const q=nrm(FLT);let L=CAT.book.filter(filter);if(q.length>=3)L=L.filter(b=>nrm(b.h).includes(q)||nrm(b.d).includes(q));
- return `<p class="mut">${L.length} sezioni${L.length>150?' (prime 150: usa il filtro)':''}</p>`+L.slice(0,150).map(b=>det(esc(b.h)+' <span class="mut">p.'+b.p+'</span>',`<p>${nl(b.d)}</p>`)).join('')}
+ return `<p class="mut">${L.length} sezioni${L.length>150?' (prime 150: usa il filtro)':''}</p>`+L.slice(0,150).map(b=>det(esc(b.h)+' <span class="mut">p.'+b.p+'</span>',fmt(b.d))).join('')}
+const HEADW=/^(?:[A-Z0-9][\w’'&\-\/\.]*|of|and|the|a|to|in|on|for|or|with|&)$/;
+const isHead=l=>l.length<=34&&!/[.,;:!?]$/.test(l)&&l.split(/\s+/).length<=5&&l.split(/\s+/).every(w=>HEADW.test(w))&&/[A-Za-z]{3}/.test(l);
+const TAGS=/^(Fixed|Volatile|Aggravating|Permanent|Lethal|Unique|Reaction|Passive|Shield Move)$/;
+function fmt(txt){const raw=String(txt||'').split('\n').map(x=>x.trim()).filter(x=>x&&!/^\d{1,3}$/.test(x)&&x!=='*');
+ const L=[];for(const l of raw){const pv=L[L.length-1];if(L.length&&((/^[a-z(]/.test(l)&&!isHead(pv))||(pv.length>=40&&!/[.!?:)”"]$/.test(pv))))L[L.length-1]+=' '+l;else L.push(l)}
+ let h='',ul=false;const cl=()=>{if(ul){h+='</ul>';ul=false}};
+ L.forEach((l,i)=>{if(TAGS.test(l)){cl();h+=`<span class="chip on">${esc(l)}</span> `}
+  else if(i>0&&isHead(l)&&i<L.length-1){cl();h+=`<h4 style="margin:10px 0 3px;color:var(--acc);font-size:13px">${esc(l)}</h4>`}
+  else if(i<=2&&/[.!?…]$/.test(l)&&L.length>3&&(i==0||TAGS.test(L[i-1])||isHead(L[i-1]))&&l.length<90&&!/^(The|A|An|If|When|Roll|Deal|Add)\b/.test(l)){cl();h+=`<div class="mut" style="margin:4px 0"><i>${esc(l)}</i></div>`}
+  else{if(!ul){h+='<ul style="margin:3px 0 3px 18px;padding:0">';ul=true}h+=`<li style="margin:2px 0">${esc(l)}</li>`}});cl();return h}
 function topicText(t){const q=nrm(FLT);let L=CAT.book.filter(b=>b.p>=t[1]&&b.p<=t[2]);if(q.length>=3)L=L.filter(b=>nrm(b.h+b.d).includes(q));
- return L.length?L.map(b=>`<div style="margin:0 0 10px"><b>${esc(b.h)}</b> <span class="mut">p.${b.p}</span><div>${nl(b.d)}</div></div>`).join(''):'<p class="mut">Nessuna sezione (importa il manuale).</p>'}
+ const G=[];for(const b of L){const good=isHead(b.h.replace(/^\d+\s*/,''))||/^\d+\s+[A-Z]/.test(b.h)&&b.h.length<40;
+  if(good||!G.length)G.push({h:b.h,p:b.p,d:b.d});else G[G.length-1].d+='\n'+b.h+'\n'+b.d}
+ return G.length?G.map(g=>det(esc(g.h)+' <span class="mut">p.'+g.p+'</span>',fmt(g.d),!!q)).join(''):'<p class="mut">Nessuna sezione (importa il manuale).</p>'}
 function info(){const ks=['Topics','Pokédex','Movedex','Abilitydex','Nature','Tutto il manuale'];
  let body='';
  if(refK=='Topics'){const t=TOPICS[tpK];body=`<div class="row" style="margin-bottom:8px"><select id="tps" style="flex:1">${TOPICS.map((x,i)=>`<option value="${i}" ${i==tpK?'selected':''}>${esc(x[0])} (p.${x[1]}–${x[2]})</option>`).join('')}</select></div>`+topicText(t)}
