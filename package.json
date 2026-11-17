@@ -1,0 +1,15 @@
+{
+  "name": "pokerole-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Schede Allenatore e Pokémon, GM e INFO per PokéRole con importazione locale del manuale",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "pdfjs-dist": "3.11.174"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}
