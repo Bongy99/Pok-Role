@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PokéRole – Schede</title>
+<script src="lib/pdf.min.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#b3262b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PokéRole">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f1ec;--card:#fff;--ink:#1f2430;--mut:#6b7280;--line:#d9d6cf;--acc:#c1272d;--acc2:#e0a100;--empty:#ebe8e1;--bad:#b3261e;--ok:#2e7d32}
+@media (prefers-color-scheme:dark){:root{--bg:#14161c;--card:#1d2028;--ink:#eef0f4;--mut:#9aa3b2;--line:#363b47;--acc:#ff6b6f;--acc2:#f2c14e;--empty:#2a2e38;--bad:#ff8a80;--ok:#7bd88f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:3px solid var(--acc);display:flex;gap:6px;align-items:center;padding:8px 12px;flex-wrap:wrap}
+h1{font-size:18px;margin:0 auto 0 0;color:var(--acc)}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--acc);margin:0 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+h3{font-size:13px;margin:10px 0 4px;color:var(--acc2)}
+main{max-width:1000px;margin:0 auto;padding:12px;display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.g{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.g2{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+label{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input[type=text],input[type=number],input[type=search],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+textarea{min-height:60px;resize:vertical}
+button{background:var(--acc);color:#fff;border:0;border-radius:6px;padding:6px 12px;cursor:pointer}
+button.o{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button.x{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:3px 8px}
+button.s{padding:2px 8px;font-size:13px}
+.tab{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.row{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.big{font-size:24px;font-weight:700;color:var(--acc);line-height:1.1}
+.stat{border:1px solid var(--line);border-radius:8px;padding:6px;text-align:center}
+.stat input{text-align:center;font-size:18px;font-weight:700}
+.item{border:1px dashed var(--line);border-radius:8px;padding:8px;margin-bottom:8px}
+.mut{color:var(--mut);font-size:12px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:1px 8px;margin:1px;font-size:12px}
+.chip.on{background:var(--acc2);color:#222;border-color:var(--acc2)}
+.tp{display:inline-block;border-radius:5px;padding:0 6px;font-size:11px;color:#fff;margin-right:3px;font-weight:700}
+#nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;flex-basis:100%}#nav button{white-space:nowrap;flex:none}
+.dots{display:inline-flex;gap:4px;vertical-align:middle}.dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--acc);display:inline-block;cursor:pointer}.dots i.f{background:var(--acc)}.dots i.l{border-style:dashed;opacity:.35;cursor:default}
+.sk{display:flex;gap:6px;align-items:center;padding:3px 0;border-bottom:1px dotted var(--line)}.sk b{margin-left:auto}
+details{border-bottom:1px dotted var(--line);padding:4px 0}summary{cursor:pointer;font-weight:600}
+details p{margin:4px 0;white-space:pre-line}
+table{border-collapse:collapse;width:100%;font-size:12px}td,th{border:1px solid var(--line);padding:2px 5px;text-align:left}th{background:var(--empty)}
+.tw{overflow-x:auto}
+#rollbar{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 12px;display:none;font-weight:600}
+</style></head><body>
+<header><h1>⚪ PokéRole · Schede</h1>
+<button class="tab" data-act="tab" data-v="home">🏠 Personaggi</button><button class="tab" data-act="tab" data-v="sheet">Scheda</button>
+<button class="tab" data-act="tab" data-v="gm">GM</button><button class="tab" data-act="tab" data-v="info">INFO</button><button class="tab" data-act="tab" data-v="man">📚 Manuale</button><div id="nav"></div></header>
+<main id="app"></main><div id="rollbar"></div>
+<script>
+const KEY='pr-app-v1',CKEY='pr-cat-v1';
+const AK=['Strength','Dexterity','Vitality','Special','Insight'],DK={FOR:'Strength',DES:'Dexterity',VIT:'Vitality',SPE:'Special',INS:'Insight'};
+const SO=['Tough','Cool','Beauty','Cute','Clever'];
+const SKG=[['Battle',['Brawl','Channel','Clash','Evasion','Throw','Weapons']],['Survival',['Alert','Athletic','Nature','Stealth']],['Social',['Charm','Empathy','Etiquette','Intimidate','Perform']],['Knowledge',['Crafts','Lore','Medicine','Science']]];
+const SKA=SKG.flatMap(g=>g[1]);
+// Rank: [nome, punti Attributi, punti Sociali, punti Abilità, limite Abilità, bersagli max]
+const RK=[['Starter',0,0,5,1,1],['Rookie',2,2,10,2,2],['Standard',4,4,14,3,3],['Advanced',6,6,17,4,4],['Expert',8,8,19,5,5],['Ace',10,10,20,5,6],['Master',10,10,22,5,8],['Champion',14,14,25,5,10]];
+const AGE={Child:[0,0],Teen:[2,2],Adult:[4,4],Senior:[3,6]};
+const TYC={Normal:'#8b8d8f',Fire:'#e8590c',Water:'#2f7fd1',Grass:'#3f9f3f',Electric:'#d9a800',Ice:'#4fb8c9',Fighting:'#b3392f',Poison:'#8e44ad',Ground:'#a57c3a',Flying:'#7d93d6',Psychic:'#e0457b',Bug:'#82a31b',Rock:'#9c8f5a',Ghost:'#5e4b8b',Dragon:'#4a3ab8',Dark:'#4b3b33',Steel:'#6f8fa3',Fairy:'#d878b8',None:'#777'};
+const NATN=['Adamant','Bashful','Bold','Brave','Calm','Careful','Docile','Gentle','Hardy','Hasty','Impish','Jolly','Lax','Lonely','Mild','Modest','Naive','Naughty','Quiet','Quirky','Rash','Relaxed','Sassy','Serious','Timid'];
+const TOPICS=[['Effetti secondari delle mosse',74,83],['Status e condizioni',84,87],['Meteo',88,89],['Sfide ambientali',90,92],['Turni, round e azioni',32,36],['Iniziativa e campo di battaglia',56,59],['Danno, dolore e KO',60,63],['Reazioni, Clash ed Evasione',58,59],['Azioni dell’Allenatore',64,67],['Più Pokémon in battaglia',66,69],['Strategie utili',72,73],['Sistema: attributi, abilità, PF, Will',22,31],['Creazione personaggio e Nature',40,50],['Cattura',96,102],['Addestramento ed evoluzione',104,114],['Strumenti e oggetti',116,131],['Leggere il Movedex e le icone',434,439],['Chiarimenti sulle mosse',529,533],['Regole delle Abilità',534,535],['Game Master',582,623],['Mosse Max / Dynamax',598,605],['Mega Evoluzione e Teracristallizzazione',606,609],['Mosse Z',610,613],['Sfida della Lega e Rivale',614,622],['Spirito dei Campioni',624,631]];
+const def=k=>k=='t'?{nome:'',pl:'',age:'Teen',rank:1,nat:'',concept:'',goal:'',at:{Strength:1,Dexterity:1,Vitality:1,Special:1,Insight:1},so:{Tough:1,Cool:1,Beauty:1,Cute:1,Clever:1},sk:{},ex:[],hp:0,wp:0,money:2000,ach:[],bag:'',small:'',potions:'',badges:0,cond:[],note:''}
+ :{nome:'',sp:'',tr:'',rank:0,nat:'',ab:'',at:{Strength:1,Dexterity:1,Vitality:1,Special:1,Insight:1},so:{Tough:1,Cool:1,Beauty:1,Cute:1,Clever:1},sk:{},ex:[],hp:0,wp:0,happy:2,loy:2,moves:[],item:'',tp:0,cond:[],note:'',cust:[]};
+let S={tr:[],pk:[],gm:{round:1,turn:0,list:[],note:''},cur:null,opt:1},tab='home',FLT='',refK='Topics',tpK=0,sq='',mq='',mty='',mcat='',spq='',pkq='';
+try{const j=JSON.parse(localStorage.getItem(KEY));if(j)S=Object.assign(S,j)}catch(e){}
+S.gm=Object.assign({round:1,turn:0,list:[],note:''},S.gm||{});
+S.tr=S.tr.map(c=>Object.assign(def('t'),c));S.pk=S.pk.map(c=>Object.assign(def('p'),c));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const cur=()=>S.cur?(S.cur.k=='t'?S.tr:S.pk)[S.cur.i]:null;
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const nl=x=>esc(x).replace(/\n/g,'<br>');
+const get=p=>p.split('.').reduce((o,k)=>o?.[k],S),put=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],S)[l]=v};
+const nrm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,'').trim();
+function mkParserP(){
+ const TYPES=['Normal','Fire','Water','Grass','Electric','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'];
+ const TS=new Set(TYPES.concat(['Fight']));const tyN=x=>{x=String(x).trim();return x=='Fight'?'Fighting':x};
+ const PG=[],LN=[],DEX=[];let DBG=null;
+ const fx=s=>String(s||'').replace(/\s+/g,' ').trim();
+ // ---------- Pokédex ----------
+ function dex(items,paths,pn){
+  const A=items.filter(i=>i.str==='Type:'||/^Type:\s*$/.test(i.str)).sort((a,b)=>b.y-a.y);
+  A.forEach((an,k)=>{
+   const top=an.y+24,bot=k+1<A.length?A[k+1].y+24:-1;
+   const B=items.filter(i=>i.y<=top&&i.y>bot&&i.y>34&&i.str.trim()!=='');
+   const USED=new Set();
+   const P=paths.filter(p=>p.y1<=top+2&&p.y0>bot-2);
+   const e={p:pn,n:'',dex:'',ty:[],at:{},mx:{},hp:0,h:'',w:'',cat:'',d:'',ab:[],rank:'',evo:'',chain:[],mv:[]};
+   // titolo
+   const tl=B.filter(i=>Math.abs(i.y-an.y)<=6&&i.h>=15&&i.x<an.x).sort((a,b)=>a.x-b.x);
+   let tt=tl.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim();
+   const m=/^#\s*(\d+)\s*(.*)$/.exec(tt);if(m){e.dex=m[1];e.n=m[2].trim()}else e.n=tt;
+   if(!tl.length){const t2=B.filter(i=>Math.abs(i.y-an.y)<=6&&i.h>=15).sort((a,b)=>a.x-b.x).map(i=>i.str).join(' ');const m2=/^#\s*(\d+)\s*(.*)$/.exec(t2);if(m2){e.dex=m2[1];e.n=m2[2].trim()}else e.n=t2.trim()}
+   // tipi
+   e.ty=B.filter(i=>Math.abs(i.y-an.y)<=6&&i.x>an.x&&TS.has(i.str.trim())).sort((a,b)=>a.x-b.x).map(i=>tyN(i.str));
+   // attributi (pallini)
+   const KEYS=['FOR','DES','VIT','SPE','INS'];
+   const dd=P.filter(p=>p.y0<=an.y-4&&p.y0>=an.y-115&&(p.x1-p.x0)>=4&&(p.x1-p.x0)<=9&&(p.y1-p.y0)>=4&&(p.y1-p.y0)<=9&&Math.abs((p.x1-p.x0)-(p.y1-p.y0))<0.6);
+   const st=dd.filter(p=>p.x0>=an.x+52&&p.x0<=an.x+74).sort((a,b)=>b.y0-a.y0),rowsD=[];
+   st.forEach(p=>{if(!rowsD.some(r=>Math.abs(r.y-p.y0)<3))rowsD.push({y:p.y0,x:p.x0})});
+   rowsD.sort((a,b)=>b.y-a.y);
+   if(rowsD.length>=5){rowsD.slice(0,5).forEach((r,i)=>{const row=dd.filter(p=>Math.abs(p.y0-r.y)<2.5&&p.x0>=r.x-1).sort((a,b)=>a.x0-b.x0);const ch=[];let px=null;for(const p of row){if(px===null||(p.x0-px<9.5&&p.x0-px>3)){if(px===null||p.x0-px>3){ch.push(p);px=p.x0}}else if(p.x0-px>=9.5)break}
+    e.at[KEYS[i]]=ch.filter(p=>!/^#ffffff$/i.test(p.c)).length;e.mx[KEYS[i]]=ch.length})}
+   // HP base
+   const hp=B.find(i=>i.h>=22&&i.h<=26&&/^\d+$/.test(i.str.trim()));if(hp)e.hp=+hp.str.trim();
+   // mosse: righe tipo+nome
+   const typ=B.filter(i=>TS.has(i.str.trim())&&i.h>=8&&i.h<=10&&Math.abs(i.y-an.y)>8);
+   typ.forEach(t=>{const nm=B.filter(i=>Math.abs(i.y-t.y)<=2&&i.x>t.x+t.w-2&&i.x<t.x+t.w+60&&i.str.trim()&&!TS.has(i.str.trim())&&i.h>=8&&i.h<=10).sort((a,b)=>a.x-b.x);
+    if(!nm.length)return;const name=fx(nm.map(i=>i.str).join(' '));
+    const cx=t.x+t.w/2,ic=P.filter(p=>p.x0>=cx-58&&p.x1<=cx-14&&(p.y0+p.y1)/2>=t.y-1&&(p.y0+p.y1)/2<=t.y+8&&(p.x1-p.x0)<14);
+    USED.add(t);nm.forEach(i=>USED.add(i));e.mv.push({n:name,t:tyN(t.str),r:rankOf(ic),x:t.x,y:t.y})});
+   // altezza/peso
+   const hl=B.find(i=>/^Height:/.test(i.str)),wl=B.find(i=>/^Weight:/.test(i.str));
+   if(hl){const v=B.filter(i=>i.y<hl.y&&hl.y-i.y<24&&i.x>=hl.x-6&&(!wl||Math.abs(i.x-hl.x)<=Math.abs(i.x-wl.x))&&i.h>=9&&i.h<=12.5&&!USED.has(i)).sort((a,b)=>b.y-a.y||a.x-b.x);if(v.length)e.h=fx(v.map(i=>i.str).join(' '))}
+   if(wl){const v=B.filter(i=>i.y<wl.y&&wl.y-i.y<24&&i.x>=wl.x-8&&(!hl||Math.abs(i.x-wl.x)<Math.abs(i.x-hl.x))&&i.x<wl.x+80&&i.h>=9&&i.h<=12.5&&!USED.has(i)).sort((a,b)=>b.y-a.y||a.x-b.x);if(v.length)e.w=fx(v.map(i=>i.str).join(' '))}
+   const ab=B.find(i=>/^Abilities:/.test(i.str)),evl=B.find(i=>/^EVOLUTIVE/i.test(i.str)),sr=B.find(i=>/^Suggested Rank/.test(i.str));
+   if(sr){const v=B.filter(i=>i.y<sr.y&&sr.y-i.y<22&&i.x>=sr.x-8&&i.x<sr.x+70&&i.h>=9&&i.h<=13&&!USED.has(i)).sort((a,b)=>b.y-a.y)[0];if(v)e.rank=fx(v.str)}
+   if(ab){const lim=evl?evl.y:ab.y-40;const v=B.filter(i=>i.y<ab.y-1&&i.y>lim+1&&i.x>=ab.x-6&&i.h>=10&&!USED.has(i)).sort((a,b)=>b.y-a.y||a.x-b.x);e.abt=fx(v.map(i=>i.str).join(' '))}
+   if(evl){const v=B.filter(i=>i.y<=evl.y+3&&i.y>evl.y-24&&i.x>=evl.x-3&&i.x<evl.x+170&&i.h>=8&&i.h<=10&&!USED.has(i)).sort((a,b)=>b.y-a.y||a.x-b.x);e.evo=fx(v.map(i=>i.str).join(' '))}
+   e.chain=B.filter(i=>i.h>=6&&i.h<=8&&/^#\d+$/.test(i.str.trim())&&(!evl||i.y<evl.y)).sort((a,b)=>a.x-b.x).map(i=>i.str.trim().slice(1));
+   // descrizione: colonna info (sotto Height)
+   if(hl&&ab){const x0=hl.x-3,x1=ab.x-6,yt=hl.y-22;
+    const v=B.filter(i=>i.y<yt&&i.x>=x0&&i.x<x1&&i.h>=8&&i.h<=11.5&&i.y>bot+4&&!USED.has(i)).sort((a,b)=>b.y-a.y||a.x-b.x);
+    const rows=[];v.forEach(i=>{const r=rows[rows.length-1];if(r&&Math.abs(r.y-i.y)<2)r.t+=(/^\s|\s$/.test(r.t+i.str)?'':' ')+i.str;else rows.push({y:i.y,t:i.str})});
+    const ls=rows.map(r=>fx(r.t)).filter(Boolean);
+    if(ls.length){e.cat=ls[0];e.d=ls.slice(1).join(' ')}}
+   e.mv.sort((a,b)=>b.y-a.y||a.x-b.x);e.mv.forEach(m=>{delete m.x;delete m.y});
+   if(DBG)DBG.push([pn,e.n,e.hp,Object.keys(e.at).length,e.mv.length,Object.values(e.mx).join('')]);
+   if(e.n&&e.hp>0&&Object.keys(e.at).length>=4&&e.mv.length)DEX.push(e)})}
+ const RANKS=['Starter','Beginner','Amateur','Ace','Pro','Master','Champion'];
+ function hue(c){const m=/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(c);if(!m)return null;const r=parseInt(m[1],16)/255,g=parseInt(m[2],16)/255,b=parseInt(m[3],16)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;if(mx<0.15||d/(mx||1)<0.4)return null;let h;if(mx==r)h=((g-b)/d)%6;else if(mx==g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;return h<0?h+360:h}
+ function rankOf(ic){if(!ic.length)return -1;const hs=ic.map(p=>hue(p.c)).filter(h=>h!==null);
+  if(hs.some(h=>h>=95&&h<=175))return 4;if(hs.some(h=>h>=38&&h<=70))return 3;if(hs.some(h=>h>=185&&h<=240))return 2;
+  if(hs.some(h=>h<25||h>335))return ic.length>=10?5:1;return 0}
+ // ---------- righe di testo ----------
+ function lines(items,pn){
+  let its=items.filter(i=>i.str&&i.str.trim()&&i.h>=3);if(its.length<3)return;
+  {const kept=[];for(const it of its){let done=false;for(let q=0;q<kept.length;q++){const o=kept[q];if(Math.abs(o.x-it.x)>2||Math.abs(o.y-it.y)>1)continue;
+     if(o.str===it.str||o.str.startsWith(it.str)){done=true;break}
+     if(it.str.startsWith(o.str)||(o.f==it.f&&/^\s*:/.test(it.str)&&/^\s*:/.test(o.str))){kept[q]=it;done=true;break}}
+    if(!done)kept.push(it)}its=kept}
+  if(HDR[pn]=='M'){const lf=[0,0];[0,1].forEach(c=>{const xs=its.filter(i=>(c?i.x>=302:i.x<302)&&i.h<9&&i.h>5).map(i=>i.x);lf[c]=xs.length?Math.min.apply(null,xs):(c?316:20)});
+   its=its.filter(i=>{const cl=lf[i.x<302?0:1];if(i.h>=16.5&&/^[\dx]$/.test(i.str.trim())&&i.x>cl+100)return false;if(i.h>=9.15&&i.h<=9.45&&i.x>cl+130&&i.str.trim().length<18&&!/^POWER$/.test(i.str.trim()))return false;return i.x<cl+182||/^POWER$/.test(i.str.trim())||(i.h>=13.4&&i.h<=15.6&&/^[\dx\-–]+$/.test(i.str.trim()))})}
+  const W=612,split=W/2,L=[];
+  [its.filter(i=>i.x<split-4),its.filter(i=>i.x>=split-4)].forEach((ci,c)=>{
+   ci.sort((a,b)=>b.y-a.y||a.x-b.x);const rows=[];
+   for(const it of ci){const r=rows[rows.length-1];if(r&&Math.abs(r.y-it.y)<=Math.max(2,.4*Math.max(it.h,r.h||0)))r.its.push(it);else rows.push({y:it.y,h:it.h,its:[it]})}
+   for(const r of rows){r.its.sort((a,b)=>a.x-b.x);let t='',pe=null;for(const it of r.its){if(pe!==null&&it.x-pe>.15*it.h&&!/\s$/.test(t)&&!/^\s/.test(it.str))t+=' ';t+=it.str;pe=it.x+(it.w||0)}
+    t=fx(t);if(!t)continue;LN.push({t,p:pn,c,y:r.y,x:r.its[0].x,h:Math.max.apply(null,r.its.map(i=>i.h)),xs:r.its})}});
+ }
+ const HDR={};
+ function page(items,paths,pn){PG.push(pn);const hd=items.filter(i=>i.h>=13&&i.h<=15&&i.y>900).map(i=>i.str.trim());if(hd.includes('Moves'))HDR[pn]='M';else if(hd.includes('Abilities'))HDR[pn]='A';else if(hd.includes('Master')&&hd.includes('Game'))HDR[pn]='G';try{dex(items,paths||[],pn)}catch(e){}lines(items,pn)}
+ // ---------- mosse ----------
+ const TAILD=/^(?:Type)+\s*:\s*(.*?)(?:\s+(?:Category)+\s*:\s*(.*))?$/i;
+ function moves(){const out=[],seen=new Set();
+  for(let i=1;i<LN.length-3;i++){const m=TAILD.exec(LN[i].t);if(!m)continue;
+   if(HDR[LN[i].p]!='M')continue;const n0=LN[i-1];if(n0.h<15||n0.c!=LN[i].c||n0.p!=LN[i].p)continue;
+   let cat=m[2];let j=i+1;if(!cat){const c2=/^(?:Category)+\s*:\s*(.*)/i.exec(LN[j]&&LN[j].t);if(c2){cat=c2[1];j++}}
+   if(!cat){if(/^Accuracy/i.test((LN[j]||{}).t||'')){cat='?'}else continue}
+   let pw='-';const pn=LN.find(l=>l.p==n0.p&&l.c==n0.c&&Math.abs(l.y-n0.y)<8&&l!==n0&&/^[\d\-–]+$/.test(l.t))||n0.xs.find(x=>x.x>n0.x+80&&/^[\d\-–]+$/.test(x.str.trim()));
+   if(pn)pw=(pn.t||pn.str).trim();else{const ni=n0.xs.filter(x=>x.x>n0.x+60&&/^[\dx\-–]+$/.test(x.str.trim()));if(ni.length)pw=ni[ni.length-1].str.trim()}
+   if(cat=='?')cat=(pw=='-'?'Support':'');const mv={n:fx(n0.xs.filter(x=>x.h>=15).map(x=>x.str).join(' ')).replace(/^Name\s*/,''),pw,ty:fx(m[1]),cat:fx(cat),ac:'',dm:'',ef:'',d:'',p:n0.p};
+   if(!mv.n||/^POWER$/i.test(mv.n))continue;
+   let eff=[],fl=[],mode='';
+   for(;j<LN.length;j++){const l=LN[j];if(l.p!=n0.p||l.c!=n0.c)break;if(l.h>=15)break;
+    let r;
+    if(r=/^Accuracy\s*:\s*(.*)/i.exec(l.t)){mv.ac=r[1];mode='ac';continue}
+    if(r=/^Damage Pool\s*:\s*(.*)/i.exec(l.t)){mv.dm=r[1];mode='dm';continue}
+    if(r=/^Added Effect\s*:\s*(.*)/i.exec(l.t)){eff.push(r[1]);mode='ef';continue}
+    if(/^POWER$/i.test(l.t))break;
+    if(mode=='ac'&&l.h<8.6&&!/^[A-Z]/.test(l.t)){mv.ac+=' '+l.t;continue}
+    if(l.h>=9.2){fl.push(l.t);mode='d';continue}
+    if(mode=='ef'||mode=='dm'||mode=='ac')eff.push(l.t)}
+   mv.ef=fx(eff.join(' '));mv.d=fx(fl.join(' ')).replace(/^Move Description\s*/,'');
+   const k=mv.n.toLowerCase();if(seen.has(k))continue;seen.add(k);out.push(mv)}
+  return out}
+ // ---------- abilita ----------
+ function abilities(){const out=[],seen=new Set();
+  const A=LN.filter(l=>HDR[l.p]=='A'&&!(l.h>=13&&l.h<=15));
+  let cur=null;
+  const flush=()=>{if(cur){const ps=[];let last=null;cur.b.forEach(l=>{if(last&&last.c==l.c&&last.p==l.p&&last.y-l.y>l.h*1.9)ps.push('\n');ps.push(l.t);last=l});
+   const txt=ps.join(' ').replace(/ ?\n ?/g,'\n').trim();const parts=txt.split('\n').filter(Boolean);
+   const k=cur.n.toLowerCase();if(parts.length&&!seen.has(k)&&!/^(Rules for|How to Read|Basic Rules|Hidden Abilities|Ignoring|Form-changing)/i.test(cur.n)){seen.add(k);out.push({n:cur.n,d:parts[0],ef:parts.slice(1).join(' '),tag:fx(cur.tag.join(' ')),p:cur.p})}}cur=null};
+  for(const l of A){
+   if(l.h>=19&&l.h<=21&&l.t.length<40&&l.x<470&&!/^\d+$/.test(l.t)){flush();cur={n:l.t.replace(/^Name\s*/,''),p:l.p,b:[],tag:[]}}
+   else if(cur){if(l.x>=415&&l.h<=19)cur.tag.push(l.t);else if(l.h>=11&&l.h<=13&&l.x<415)cur.b.push(l)}}
+  flush();return out}
+ function book(){const secs=[];let cur=null,ch='';
+  const dexP=new Set(DEX.map(e=>e.p)),mvP=new Set(moves().map(m=>m.p)),abP=new Set(Object.keys(HDR).filter(p=>HDR[p]=='A'&&+p>=536).map(Number));
+  for(let i=0;i<LN.length;i++){const l=LN[i];
+   if(dexP.has(l.p)||mvP.has(l.p)||abP.has(l.p))continue;
+   if(l.h>=34&&l.t.length<40&&!/^\d+$/.test(l.t)){ch=l.t;cur=null;continue}
+   const hd=(l.h>=15.5&&l.h<=21&&l.t.length<60&&!/^[-•●]/.test(l.t)&&l.xs.length<=8&&!/^\d+$/.test(l.t));
+   if(hd){if(cur&&!cur.b.length&&cur.p==l.p&&cur.c==l.c&&Math.abs(cur.y-l.y)<l.h*1.6&&cur.h.length<60){cur.h+=' '+l.t;cur.y=l.y;continue}
+    if(cur)secs.push(cur);cur={h:l.t,p:l.p,c:l.c,y:l.y,b:[],ch}}
+   else if(cur)cur.b.push(l.t)}
+  if(cur)secs.push(cur);
+  return secs.map(s=>({h:s.h,p:s.p,ch:s.ch,d:s.b.join('\n').replace(/-\n([a-z])/g,'$1').replace(/([^.:!?\n])\n(?=[a-z(])/g,'$1 ')})).filter(s=>s.d.length>=60)}
+ return{hdr:()=>HDR,dbg:()=>DBG=[],getDbg:()=>DBG,page,lines:()=>LN,dexAll:()=>DEX,moves,abilities,book,RANKS,result(){return{dex:DEX,moves:moves(),ab:abilities(),book:book()}}}
+}
+
+
+// ---------- catalogo ----------
+const CAT0=()=>({v:0,dex:[],moves:[],ab:[],book:[],src:[]});let CAT=CAT0();
+const IDB=()=>new Promise((res,rej)=>{const r=indexedDB.open('pr-db',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbGet=async k=>{const d=await IDB();return new Promise(res=>{const q=d.transaction('k').objectStore('k').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})};
+const idbSet=async(k,v)=>{const d=await IDB();return new Promise((res,rej)=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})};
+const saveCat=()=>idbSet('cat',JSON.stringify(CAT));
+(async()=>{try{const j=await idbGet('cat');if(j){const x=JSON.parse(j);if(x&&x.v)CAT=Object.assign(CAT0(),x)}}catch(e){}render()})();
+const fnd=(a,n)=>a.find(x=>nrm(x.n)==nrm(n));
+const spKey=e=>e.n+'@'+e.p+'@'+e.ty.join(),SP=c=>CAT.dex.find(e=>spKey(e)==c.sp);
+const mv=n=>fnd(CAT.moves,n),abl=n=>fnd(CAT.ab,n);
+const MAXR=['Starter','Rookie','Standard','Advanced','Expert','Ace','Master','Champion'];
+const rankIdx=n=>{const i=MAXR.findIndex(x=>x.toLowerCase()==String(n||'').toLowerCase());return i<0?(String(n).toLowerCase()=='ace'?5:0):i};
+const BR=/bold|black|heavy/i;
+const hexc=a=>typeof a[0]==='string'?a[0]:'#'+[0,1,2].map(i=>('0'+Math.round(a[i]).toString(16)).slice(-2)).join('');
+function pathsFromOps(ol,O){const mul=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];
+ let ctm=[1,0,0,1,0,0],st=[],col='#000000';const P=[];
+ for(let i=0;i<ol.fnArray.length;i++){const f=ol.fnArray[i],a=ol.argsArray[i];
+  if(f==O.save)st.push(ctm.slice());else if(f==O.restore){if(st.length)ctm=st.pop()}else if(f==O.transform)ctm=mul(ctm,a);
+  else if(f==O.paintFormXObjectBegin){st.push(ctm.slice());if(a&&a[0])ctm=mul(ctm,a[0])}else if(f==O.paintFormXObjectEnd){if(st.length)ctm=st.pop()}
+  else if(f==O.setFillRGBColor)col=hexc(a);
+  else if(f==O.constructPath){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const add=(x,y)=>{if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y};
+   if(a[2]&&a[2].length>=4){add(a[2][0],a[2][1]);add(a[2][2],a[2][3])}
+   else if(Array.isArray(a[0])){const c=a[1];for(let k=0;k+1<c.length;k+=2)add(c[k],c[k+1])}
+   else{const b=a[1]&&a[1][0];if(b){let k=0;while(k<b.length){const o=b[k++];if(o===0||o===1){add(b[k],b[k+1]);k+=2}else if(o===2){add(b[k],b[k+1]);add(b[k+4],b[k+5]);k+=6}else if(o!==3)break}}}
+   if(x0>1e8)continue;const p=[[x0,y0],[x1,y1]].map(([x,y])=>[ctm[0]*x+ctm[2]*y+ctm[4],ctm[1]*x+ctm[3]*y+ctm[5]]);
+   const w=Math.abs(p[1][0]-p[0][0]),h=Math.abs(p[1][1]-p[0][1]);if(w<24&&h<24)P.push({c:col,x0:Math.min(p[0][0],p[1][0]),x1:Math.max(p[0][0],p[1][0]),y0:Math.min(p[0][1],p[1][1]),y1:Math.max(p[0][1],p[1][1])})}}
+ return P}
+async function readPdf(f,st){
+ const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,P=mkParserP(),O=pdfjsLib.OPS;
+ for(let n=1;n<=pdf.numPages;n++){if(st)st.textContent='Pagina '+n+' di '+pdf.numPages+'…';
+  const pg=await pdf.getPage(n),tc=await pg.getTextContent();
+  const its=tc.items.filter(t=>t.str!==undefined&&t.transform).map(t=>({str:t.str,x:t.transform[4],y:t.transform[5],h:Math.hypot(t.transform[2],t.transform[3]),w:t.width||0,f:t.fontName}));
+  let paths=[];if(n>=100&&its.some(i=>i.str.includes('Type:'))&&its.some(i=>/^Type:/.test(i.str))){try{paths=pathsFromOps(await pg.getOperatorList(),O)}catch(e){}}
+  try{P.page(its,paths,n)}catch(e){}
+  try{pg.cleanup()}catch(e){}
+  if(n%8==0)await new Promise(r=>setTimeout(r,0))}
+ return P.result()}
+const mrg=(a,b,s,key)=>{const m=new Map((a||[]).map(x=>[key(x),x]));for(const x of b){x.s=s;m.set(key(x),x)}return[...m.values()]};
+async function importPdf(files){
+ if(typeof pdfjsLib==='undefined'){alert('Il lettore PDF è disponibile solo nell\'app installata (APK o WebApp), non in questa anteprima.');return}
+ const st=document.getElementById('imps'),out=[];
+ try{if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc='lib/pdf.worker.min.js';
+  for(const f of files){const s=f.name.replace(/\.pdf$/i,'').replace(/[_\-]+/g,' ').slice(0,50);
+   try{const r=await readPdf(f,st);const n=r.dex.length+r.moves.length+r.ab.length;
+    if(!n&&!r.book.length){out.push(f.name+': nessun contenuto riconosciuto (formato diverso dal manuale PokéRole).');continue}
+    CAT.dex=mrg(CAT.dex,r.dex,s,spKey);CAT.moves=mrg(CAT.moves,r.moves,s,x=>nrm(x.n));CAT.ab=mrg(CAT.ab,r.ab,s,x=>nrm(x.n));
+    CAT.book=CAT.book.filter(b=>b.s!==s).concat(r.book.map(b=>Object.assign(b,{s})));if(!CAT.src.includes(s))CAT.src.push(s);CAT.v=1;
+    try{await saveCat()}catch(e){out.push('Attenzione: memoria piena, catalogo non salvato.')}
+    out.push(s+': '+r.dex.length+' voci Pokédex, '+r.moves.length+' mosse, '+r.ab.length+' abilità, '+r.book.length+' sezioni di regole')}
+   catch(e){out.push(f.name+': errore nella lettura ('+(e&&e.message||e)+')')}}
+  alert(out.join('\n'))}
+ catch(x){alert('Errore nella lettura del PDF: '+(x&&x.message||x))}
+ render()}
+// ---------- regole ----------
+const hasR=(c,i)=>c.rank>=i,M3=c=>hasR(c,6)?3:0;
+const baseHP=(c,k)=>k=='t'?4:((SP(c)||{}).hp||0);
+const hpMax=(c,k)=>baseHP(c,k)+c.at.Vitality+M3(c);
+const wpMax=c=>c.at.Insight+3+M3(c);
+const defn=c=>c.at.Vitality+M3(c),sdef=c=>(S.opt==2?c.at.Insight:c.at.Vitality)+M3(c);
+const ini=c=>c.at.Dexterity+(c.sk.Alert||0)+M3(c);
+const pain=(c,k)=>{const m=hpMax(c,k);return c.hp>=m?0:c.hp<=1?2:c.hp<=Math.floor(m/2)?1:0};
+const lim=(c,k,a)=>k=='p'&&a?((SP(c)||{mx:{}}).mx[Object.keys(DK).find(x=>DK[x]==a)]||5):5+(c.rank>=7?2:0);
+const val=(c,n)=>{const t=nrm(n);const a=AK.find(x=>nrm(x)==t);if(a)return[c.at[a],'a'];const s=SO.find(x=>nrm(x)==t);if(s)return[c.so[s],'s'];const k=SKA.find(x=>nrm(x)==t);if(k)return[c.sk[k]||0,'k'];const e=(c.ex||[]).find(x=>nrm(x.n)==t);if(e)return[e.v||0,'k'];return null};
+function pool(c,expr,extra){if(!expr||/^-?$/.test(expr.trim()))return null;let n=0,sk=false,onlyVit=true,bad=false;
+ for(const raw of expr.replace(/\*/g,'').split('+')){const t=raw.trim();if(!t)continue;if(/^\d+$/.test(t)){n+=+t;continue}
+  let best=null;for(const o of t.split('/')){const v=val(c,o.trim());if(v&&(!best||v[0]>best[0]))best=v}
+  if(!best){bad=true;continue}n+=best[0];if(best[1]=='k')sk=true;if(!/vitality/i.test(t))onlyVit=false}
+ if(bad)return null;return{n:n+(extra||0)+(sk&&hasR(c,6)?2:0),vit:onlyVit}}
+const dice=n=>Array.from({length:Math.max(0,n)},()=>1+Math.floor(Math.random()*6));
+function roll(label,n,req,pen){const d=dice(n),ok=d.filter(x=>x>=4).length,net=Math.max(0,ok-(pen||0));
+ const bar=document.getElementById('rollbar');bar.style.display='block';
+ bar.innerHTML=esc(label)+': '+n+'d6 → ['+d.map(x=>x>=4?'<u>'+x+'</u>':x).join(' ')+'] = '+ok+' successi'+(pen?' − '+pen+' (dolore) = '+net:'')+(req?' · richiesti '+req+' → '+(net>=req?'<span style="color:#7bd88f">RIUSCITO</span>':'<span style="color:#ff8a80">FALLITO</span>'+(req-net>=3?' (fallimento critico)':'')):'');
+ clearTimeout(roll.t);roll.t=setTimeout(()=>bar.style.display='none',20000);return net}
+// ---------- UI base ----------
+const I=(p,l,t='text',x='')=>`<div><label>${l}</label><input type="${t}" data-p="${p}" value="${esc(get(p))}" ${x}></div>`;
+const T=(p,l)=>`<div><label>${l}</label><textarea data-p="${p}">${esc(get(p))}</textarea></div>`;
+const optl=(a,v,ph)=>`<option value="">${ph||'—'}</option>`+a.map(x=>{const n=x.n||x;return`<option ${nrm(n)==nrm(v)?'selected':''}>${esc(n)}</option>`}).join('');
+const SEL=(p,l,a,ph)=>`<div><label>${l}</label><select data-p="${p}" data-rcc>${optl(a,get(p),ph)}</select></div>`;
+const det=(t,b,o)=>`<details${o?' open':''}><summary>${t}</summary>${b}</details>`;
+const tp=t=>`<span class="tp" style="background:${TYC[t]||TYC.None}">${esc(t)}</span>`;
+const dots=(act,v,max,data,min)=>'<span class="dots">'+Array.from({length:max},(_,i)=>`<i class="${i<v?'f':''}" data-act="${act}" ${data} data-v="${i+1}"></i>`).join('')+'</span>';
+const empty=()=>CAT.v?'':'<div class="card"><b>Catalogo vuoto.</b> Vai in <b>📚 Manuale</b> e importa il PDF del manuale PokéRole: Pokédex, mosse, abilità e regole si compileranno da soli. Puoi comunque usare le schede con voci personalizzate.</div>';
+const pts=(a,b)=>`<span class="chip ${a<b?'':'on'}" style="${a>b?'border-color:var(--bad);color:var(--bad)':''}">${a}/${b} punti</span>`;
+function attrBlock(c,k){const rk=RK[c.rank],ag=k=='t'?AGE[c.age]||[0,0]:[0,0],sp=SP(c),bs=k=='p'&&sp?sp.at:null;
+ const aSpent=AK.reduce((s,a)=>s+c.at[a]-(bs?bs[Object.keys(DK).find(x=>DK[x]==a)]||1:1),0),sSpent=SO.reduce((s,a)=>s+c.so[a]-1,0),kSpent=SKA.reduce((s,a)=>s+(c.sk[a]||0),0)+(c.ex||[]).reduce((s,e)=>s+(e.v||0),0);
+ const px=k=='t'?'c':'c';
+ return `<div class="card"><h2>Attributi ${pts(aSpent,rk[1]+ag[0])}</h2>${AK.map(a=>`<div class="sk">${a} ${dots('at',c.at[a],lim(c,k,a),'data-k="'+a+'"')}<b>${c.at[a]}${bs&&sp?'/'+lim(c,k,a):''}</b></div>`).join('')}
+ <h2 style="margin-top:12px">Attributi sociali ${pts(sSpent,rk[2]+ag[1])}</h2>${SO.map(a=>`<div class="sk">${a} ${dots('so',c.so[a],lim(c,k),'data-k="'+a+'"')}<b>${c.so[a]}</b></div>`).join('')}
+ <h2 style="margin-top:12px">Abilità ${pts(kSpent,rk[3])} <span class="mut">limite ${rk[4]} per abilità</span></h2>${SKG.map(([g,l])=>`<h3>${g}</h3>`+l.map(s=>`<div class="sk">${s} ${dots('sk',c.sk[s]||0,Math.max(5,rk[4]),'data-k="'+s+'"')}<b>${c.sk[s]||0}</b></div>`).join('')).join('')}
+ <h3>Extra</h3>${(c.ex||[]).map((e,i)=>`<div class="sk"><input type="text" data-p="${k=='t'?'':''}ex.${i}.n" value="${esc(e.n)}" data-ex="${i}" placeholder="Abilità extra" style="flex:1">${dots('exs',e.v||0,5,'data-i="'+i+'"')}<button class="x s" data-act="exdel" data-i="${i}">✕</button></div>`).join('')}<button class="o s" data-act="exadd">+ Abilità extra</button></div>`}
+function derived(c,k){const m=hpMax(c,k),pn=pain(c,k);
+ return `<div class="card"><h2>Combattimento</h2><div class="g">
+ <div class="stat"><label>PF attuali / ${m}</label><input type="number" data-p="HP" value="${c.hp}" data-hp></div>
+ <div class="stat"><label>Will attuali / ${wpMax(c)}</label><input type="number" data-p="WP" value="${c.wp}" data-wp></div>
+ <div class="stat"><label>Difesa</label><div class="big">${defn(c)}</div></div><div class="stat"><label>Dif. Speciale</label><div class="big">${sdef(c)}</div></div>
+ <div class="stat"><label>Iniziativa</label><div class="big">${ini(c)}</div></div><div class="stat"><label>Dolore</label><div class="big" style="color:${pn?'var(--bad)':'var(--ok)'}">${pn?'−'+pn:'0'}</div><div class="mut">successi rimossi</div></div></div>
+ <div class="row" style="margin-top:8px"><button class="o" data-act="heal">Cura completa (PF e Will)</button><button class="o" data-act="init">Tira iniziativa</button></div>
+ <p class="mut">PF max = PF base ${baseHP(c,k)} + Vitality${M3(c)?' + 3 (rango Master+)':''}. Will = Insight + 3. Difesa/Dif. Speciale: ${S.opt==2?'opzione 2 (Dif.=Vitality, Dif.Spec.=Insight)':'opzione 1 (entrambe = Vitality)'} (cambia in GM). Bersagli massimi: ${RK[c.rank][5]}.</p></div>
+ ${rollCard(c)}${condCard(c)}`}
+let RA='Strength',RS='',RX=0,RD=1;
+function rollCard(c){return `<div class="card"><h2>Tiro libero</h2><div class="g"><div><label>Attributo</label><select id="ra">${AK.concat(SO).map(a=>`<option ${a==RA?'selected':''}>${a}</option>`).join('')}</select></div><div><label>Abilità</label><select id="rs"><option value="">—</option>${SKA.map(a=>`<option ${a==RS?'selected':''}>${a}</option>`).join('')}</select></div><div><label>Dadi extra</label><input type="number" id="rx" value="${RX}"></div><div><label>Successi richiesti</label><input type="number" id="rd" value="${RD}" min="0"></div></div><button data-act="rollfree" style="margin-top:8px">🎲 Tira</button><p class="mut">Ogni dado con 4, 5 o 6 è un successo. Con più azioni nello stesso round la difficoltà della n-esima azione è n successi.</p></div>`}
+function condCard(c){const names=statusNames();return `<div class="card"><h2>Status e condizioni</h2>${c.cond.map((n,i)=>`<span class="chip on" data-act="cdel" data-i="${i}" style="cursor:pointer">${esc(n)} ✕</span>`).join('')||'<span class="mut">Nessuno</span>'}<div class="row" style="margin-top:6px"><input type="text" id="cn" list="stl" placeholder="Aggiungi status" style="flex:1"><datalist id="stl">${names.map(n=>`<option>${esc(n)}</option>`).join('')}</datalist><button data-act="cadd">+</button></div></div>`}
+const statusNames=()=>{const s=new Set();CAT.book.filter(b=>b.p>=84&&b.p<=88&&b.h.length<28&&!/^(Status|Weather|Relevant)/i.test(b.h)&&/[A-Za-z]{4}/.test(b.h)).forEach(b=>s.add(b.h.replace(/^\d+\s*/,'')));return[...s]};
+// ---- Allenatore ----
+function trainer(c){const sel=S.pk.map((p,i)=>[p,i]).filter(([p])=>nrm(p.tr)==nrm(c.nome)&&c.nome);
+ return `<div class="card"><h2>Allenatore</h2><div class="g2">${I('c.nome','Nome personaggio')}${I('c.pl','Giocatore')}
+ ${SEL('c.age','Età',Object.keys(AGE))}${SEL('c.rank','Rango',[],'')}${I('c.concept','Concetto / occupazione')}${I('c.goal','Obiettivo')}
+ ${SEL('c.nat','Nature',natList(),'Scegli…')}${I('c.money','Denaro','number')}</div><p class="mut">Le Nature, i punti per età e rango vengono dalle regole del manuale. ${esc((natOf(c.nat)||{}).k||'')}</p></div>`
+ .replace(/<select data-p="c.rank"[^]*?<\/select>/,`<select data-p="c.rank" data-rcc data-num>${RK.map((r,i)=>`<option value="${i}" ${i==c.rank?'selected':''}>${r[0]}</option>`).join('')}</select>`)
+ +attrBlock(c,'t')+derived(c,'t')
+ +`<div class="card"><h2>Zaino e obiettivi</h2>${T('c.bag','Tasca grande (non usabile in battaglia)')}${T('c.small','Tasca piccola (usabile in battaglia)')}${T('c.potions','Tasca delle Pozioni')}
+ <div class="row"><label style="display:inline">Medaglie</label>${dots('badge',c.badges,8,'')}</div>
+ <h3>Obiettivi per il prossimo rango</h3>${c.ach.map((a,i)=>`<div class="sk"><input type="checkbox" data-p="c.ach.${i}.d" data-rc ${a.d?'checked':''}><input type="text" data-p="c.ach.${i}.t" value="${esc(a.t)}" style="flex:1"><button class="x s" data-act="adel" data-i="${i}">✕</button></div>`).join('')}<button class="o s" data-act="aadd">+ Obiettivo</button>
+ <div class="mut">${rankHint(c.rank+1)}</div></div>
+ <div class="card"><h2>Squadra</h2>${sel.map(([p,i])=>`<div class="sk"><a data-act="openp" data-i="${i}" style="cursor:pointer;color:var(--acc)">${esc(p.nome||(SP(p)||{}).n||'Pokémon')}</a> <span class="mut">${esc((SP(p)||{}).n||'')} · ${RK[p.rank][0]}</span></div>`).join('')||'<span class="mut">Nessun Pokémon collegato (imposta “Allenatore” nella scheda Pokémon).</span>'}<div style="margin-top:6px"><button data-act="newp" data-tr="${esc(c.nome)}">+ Nuovo Pokémon</button></div></div>
+ <div class="card"><h2>Note</h2>${T('c.note','Note')}</div>`}
+const rankHint=i=>{if(i>=RK.length)return'';const b=CAT.book.find(x=>new RegExp('^'+RK[i][0]+' Rank','i').test(x.h)&&x.p>=30&&x.p<=31);return b?'<b>Per il rango '+RK[i][0]+'</b>: '+nl(b.d.slice(0,420)):''};
+const natList=()=>{const o=CAT.book.filter(b=>NATN.includes(b.h)&&b.p>=46&&b.p<=49).map(b=>b.h);return(o.length?o:NATN)};
+const natOf=n=>{const b=CAT.book.find(x=>x.h==n&&x.p>=46&&x.p<=49);if(!b)return null;const l=b.d.split('\n');return{k:l[0],d:l.slice(1).join(' ')}};
+// ---- Pokémon ----
+function pokeSel(c){const q=nrm(pkq),res=q.length>=2?CAT.dex.filter(e=>nrm(e.n).includes(q)).slice(0,60):[];
+ return `<div class="row"><input type="search" id="pkq" placeholder="Cerca specie (es. Pikachu)" value="${esc(pkq)}" style="flex:1"></div>`+(res.length?`<div class="row" style="margin-top:6px"><select id="pksel" style="flex:1">${res.map(e=>`<option value="${esc(spKey(e))}">${e.dex?'#'+e.dex+' ':''}${esc(e.n)} (${e.ty.join('/')})</option>`).join('')}</select><button data-act="pkpick">Scegli</button></div>`:q.length>=2?'<p class="mut">Nessun risultato.</p>':'')}
+function poke(c){const sp=SP(c),i=S.cur.i;
+ const abs=sp?(sp.abt||'').split(/\s*&\s*/).filter(Boolean):[];
+ return `<div class="card"><h2>Pokémon</h2><div class="g2">${I('c.nome','Soprannome')}${I('c.tr','Allenatore (nome)')}${SEL('c.rank','Rango',[])}${SEL('c.nat','Nature',natList(),'Scegli…')}</div>
+ <h3>Specie</h3>${sp?`<div><b>${sp.dex?'#'+sp.dex+' ':''}${esc(sp.n)}</b> ${sp.ty.map(tp).join('')} <span class="mut">PF base ${sp.hp} · rango suggerito ${esc(sp.rank||'—')} · ${esc(sp.h)} ${esc(sp.w)}</span><div class="mut">${esc(sp.cat)} — ${esc(sp.d)}</div><div class="mut">${esc(sp.evo||'')}</div></div><div class="row" style="margin-top:6px"><button class="o" data-act="applysp">Applica valori di base della specie</button></div>`:'<p class="mut">Nessuna specie scelta.</p>'}
+ ${pokeSel(c)}
+ <div class="row" style="margin-top:8px"><div><label>Felicità (0–5)</label>${dots('happy',c.happy,5,'')}</div><div><label>Lealtà (0–5)</label>${dots('loy',c.loy,5,'')}</div><div><label>Punti Addestramento</label><input type="number" data-p="c.tp" value="${c.tp}" style="width:90px"></div></div></div>`
+ .replace(/<select data-p="c.rank"[^]*?<\/select>/,`<select data-p="c.rank" data-rcc data-num>${RK.map((r,i)=>`<option value="${i}" ${i==c.rank?'selected':''}>${r[0]}</option>`).join('')}</select>`)
+ +`<div class="card"><h2>Abilità del Pokémon</h2><div class="row"><select data-p="c.ab" data-rcc style="flex:1"><option value="">—</option>${abs.map(a=>`<option ${a==c.ab?'selected':''}>${esc(a)}</option>`).join('')}${CAT.ab.filter(a=>!abs.includes(a.n)).map(a=>`<option ${a.n==c.ab?'selected':''}>${esc(a.n)}</option>`).join('')}</select></div>${c.ab?(a=>a?`<p><i>${nl(a.d)}</i></p><p>${nl(a.ef)}</p>`:'')(abl(c.ab)):''}</div>`
+ +attrBlock(c,'p')+derived(c,'p')+moveCard(c,sp)
+ +`<div class="card"><h2>Strumento e note</h2>${I('c.item','Strumento tenuto')}${T('c.note','Note')}</div>`}
+function moveCard(c,sp){const max=c.at.Insight+3,n=c.moves.length;
+ const stab=m=>sp&&sp.ty.includes(m.ty)&&m.cat!='Support';
+ const learn=sp?sp.mv.filter(m=>!c.moves.includes(m.n)):[];
+ return `<div class="card"><h2>Mosse <span class="chip ${n>max?'':'on'}" style="${n>max?'border-color:var(--bad);color:var(--bad)':''}">${n}/${max}</span></h2><p class="mut">Un Pokémon conosce al massimo Insight + 3 mosse.</p>`
+ +c.moves.map((nm,i)=>{const m=mv(nm);if(!m)return `<div class="item"><b>${esc(nm)}</b> <button class="x s" data-act="mvdel" data-i="${i}">✕</button></div>`;
+  const ac=pool(c,m.ac),dm=m.pw=='-'||!m.dm?null:pool(c,m.dm,stab(m)?1:0),pen=pain(c,'p'),req=1;
+  return `<div class="item"><div class="row" style="align-items:center"><b>${esc(m.n)}</b> ${tp(m.ty)}<span class="mut">${esc(m.cat)} · Potenza ${esc(m.pw)}</span><button class="x s" data-act="mvdel" data-i="${i}" style="margin-left:auto">✕</button></div>
+  <div class="mut">Precisione: ${esc(m.ac)}${ac?' = <b>'+ac.n+'</b> dadi':''}${dm?' · Danno: '+esc(m.dm)+(stab(m)?' +1 (STAB)':'')+' = <b>'+dm.n+'</b> dadi':''}</div>
+  <div style="margin:4px 0">${ac?`<button class="s" data-act="macc" data-i="${i}">🎲 Precisione</button> `:''}${dm?`<button class="s o" data-act="mdmg" data-i="${i}">🎲 Danno</button>`:''}</div>
+  ${det('Effetto e descrizione',`<p><b>Effetto:</b> ${nl(m.ef)}</p><p><i>${nl(m.d)}</i></p>`)}</div>`}).join('')
+ +`<h3>Aggiungi mossa</h3>${learn.length?`<div class="row"><select id="mvl" style="flex:1">${[0,1,2,3,4,5].map(r=>`<optgroup label="Rango ${MAXR[r]}">${learn.filter(m=>m.r==r).map(m=>`<option ${r>c.rank?'style="color:#999"':''}>${esc(m.n)}</option>`).join('')}</optgroup>`).join('')}</select><button data-act="mvadd2">Aggiungi</button></div><p class="mut">Le mosse di un rango superiore al tuo richiedono l’Over-Ranking (vedi INFO → Addestramento).</p>`:''}
+ <div class="row" style="margin-top:6px"><input type="search" id="mvq" placeholder="Cerca qualsiasi mossa del Movedex" style="flex:1" value="${esc(mq)}"></div>${mq.length>=2?CAT.moves.filter(m=>nrm(m.n).includes(nrm(mq))).slice(0,12).map(m=>`<div class="sk">${esc(m.n)} ${tp(m.ty)}<button class="s" data-act="mvadd" data-k="${esc(m.n)}">+</button></div>`).join(''):''}
+ <div class="row" style="margin-top:6px"><input type="text" id="mvc" placeholder="Mossa personalizzata" style="flex:1"><button data-act="mvcust">Aggiungi</button></div></div>`}
+// ---- GM ----
+function gmCard(){const g=S.gm,names=statusNames();
+ return `<div class="card"><h2>Combattimento · round ${g.round}</h2><div class="row"><button data-act="gnext">Prossimo turno ▶</button><button class="o" data-act="gsort">Ordina per iniziativa</button><button class="o" data-act="gadd1">+ Tutti i personaggi</button><button class="x" data-act="gclr">Fine scontro</button></div>
+ <div class="row" style="margin-top:8px"><label style="display:inline">Difesa</label><select data-p="opt" data-rcc data-num><option value="1" ${S.opt==1?'selected':''}>Opzione 1: Dif. = Dif.Spec. = Vitality</option><option value="2" ${S.opt==2?'selected':''}>Opzione 2: Dif. = Vitality, Dif.Spec. = Insight</option></select></div></div>`
+ +g.list.map((x,i)=>`<div class="item" ${g.turn==i?'style="border:2px solid var(--acc)"':''}><div class="row" style="align-items:center"><input type="number" data-p="gm.list.${i}.init" style="width:60px" value="${x.init}" data-rc><b style="flex:1">${esc(x.n)}</b>${x.ty?x.ty.map(tp).join(''):''}<button class="x s" data-act="gdel" data-i="${i}">✕</button></div>
+ <div class="row" style="margin-top:6px"><span>PF</span><input type="number" data-p="gm.list.${i}.hp" style="width:64px" value="${x.hp}"><span>/ ${x.hpm}</span><span>Will</span><input type="number" data-p="gm.list.${i}.wp" style="width:56px" value="${x.wp}"><span>/ ${x.wpm}</span>
+ <input type="number" id="dm${i}" placeholder="n" style="width:56px"><button class="s" data-act="gdmg" data-i="${i}">− danno</button><button class="s o" data-act="gheal" data-i="${i}">+ cura</button></div>
+ <div class="row" style="margin-top:6px"><span class="mut">Azioni questo round:</span>${dots('gact',x.act||0,5,'data-i="'+i+'"')}<span class="mut">prossima azione: ${(x.act||0)+1} successi</span></div>
+ <div style="margin-top:4px">${(x.cond||[]).map((n,j)=>`<span class="chip on" data-act="gcdel" data-i="${i}" data-j="${j}" style="cursor:pointer">${esc(n)} ✕</span>`).join('')}<input type="text" data-gc="${i}" list="stl" placeholder="+ status" style="width:130px;display:inline-block"></div>
+ <input type="text" data-p="gm.list.${i}.note" value="${esc(x.note)}" placeholder="note"></div>`).join('')
+ +`<datalist id="stl">${names.map(n=>`<option>${esc(n)}</option>`).join('')}</datalist>
+ <div class="card"><h2>Aggiungi combattente</h2><div class="row"><input type="text" id="gn" placeholder="Nome" style="flex:2"><input type="number" id="gi" placeholder="Init" style="width:64px"><input type="number" id="gh" placeholder="PF" style="width:64px"><input type="number" id="gw" placeholder="Will" style="width:64px"><button data-act="gadd">Aggiungi</button></div>
+ <h3>Pokémon selvatico dal Pokédex</h3>${CAT.dex.length?`<div class="row"><input type="search" id="gsq" placeholder="Cerca specie" value="${esc(sq)}" style="flex:1"></div>${sq.length>=2?CAT.dex.filter(e=>nrm(e.n).includes(nrm(sq))).slice(0,10).map(e=>`<div class="sk">${e.dex?'#'+e.dex+' ':''}${esc(e.n)} ${e.ty.map(tp).join('')} <span class="mut">PF base ${e.hp}</span><button class="s" data-act="gwild" data-k="${esc(spKey(e))}">+</button></div>`).join(''):''}`:'<p class="mut">Importa il manuale.</p>'}</div>
+ <div class="card"><h2>Dadi</h2><div class="row"><input type="number" id="gd" value="3" style="width:70px"><button data-act="groll">🎲 Tira N dadi</button><span class="mut">Successo con 4–6</span></div></div>
+ <div class="card"><h2>Note del GM</h2>${T('gm.note','Trama, PNG, incontri…')}</div>`}
+// ---- INFO ----
+const kind=b=>b.map(x=>x);
+function bookList(filter){const q=nrm(FLT);let L=CAT.book.filter(filter);if(q.length>=3)L=L.filter(b=>nrm(b.h).includes(q)||nrm(b.d).includes(q));
+ return `<p class="mut">${L.length} sezioni${L.length>150?' (prime 150: usa il filtro)':''}</p>`+L.slice(0,150).map(b=>det(esc(b.h)+' <span class="mut">p.'+b.p+'</span>',`<p>${nl(b.d)}</p>`)).join('')}
+function topicText(t){const q=nrm(FLT);let L=CAT.book.filter(b=>b.p>=t[1]&&b.p<=t[2]);if(q.length>=3)L=L.filter(b=>nrm(b.h+b.d).includes(q));
+ return L.length?L.map(b=>`<div style="margin:0 0 10px"><b>${esc(b.h)}</b> <span class="mut">p.${b.p}</span><div>${nl(b.d)}</div></div>`).join(''):'<p class="mut">Nessuna sezione (importa il manuale).</p>'}
+function info(){const ks=['Topics','Pokédex','Movedex','Abilitydex','Nature','Tutto il manuale'];
+ let body='';
+ if(refK=='Topics'){const t=TOPICS[tpK];body=`<div class="row" style="margin-bottom:8px"><select id="tps" style="flex:1">${TOPICS.map((x,i)=>`<option value="${i}" ${i==tpK?'selected':''}>${esc(x[0])} (p.${x[1]}–${x[2]})</option>`).join('')}</select></div>`+topicText(t)}
+ else if(refK=='Tutto il manuale')body=bookList(()=>true);
+ else if(refK=='Nature')body=natList().map(n=>{const o=natOf(n);return det(esc(n)+(o?' <span class="mut">'+esc(o.k)+'</span>':''),`<p>${nl(o?o.d:'')}</p>`)}).join('');
+ else if(refK=='Abilitydex'){const q=nrm(FLT);body=CAT.ab.filter(a=>!q||nrm(a.n+a.d+a.ef).includes(q)).map(a=>det(esc(a.n),`<p><i>${nl(a.d)}</i></p><p>${nl(a.ef)}</p>`)).join('')}
+ else if(refK=='Movedex'){const q=nrm(FLT),L=CAT.moves.filter(m=>(!mty||m.ty==mty)&&(!mcat||m.cat==mcat)&&(!q||nrm(m.n).includes(q)||nrm(m.ef).includes(q)));
+  body=`<div class="row"><select id="mty"><option value="">Tutti i tipi</option>${Object.keys(TYC).filter(t=>t!='None').map(t=>`<option ${t==mty?'selected':''}>${t}</option>`).join('')}</select><select id="mcat"><option value="">Tutte le categorie</option>${['Physical','Special','Support'].map(t=>`<option ${t==mcat?'selected':''}>${t}</option>`).join('')}</select></div><p class="mut">${L.length} mosse</p>`+L.slice(0,150).map(m=>det(esc(m.n)+' '+tp(m.ty)+' <span class="mut">'+esc(m.cat)+' · Potenza '+esc(m.pw)+'</span>',moveBody(m))).join('')}
+ else if(refK=='Pokédex'){const q=nrm(FLT),L=q.length>=2?CAT.dex.filter(e=>nrm(e.n).includes(q)||e.dex==q):[];
+  body=L.length?L.slice(0,60).map(e=>det((e.dex?'#'+e.dex+' ':'')+esc(e.n)+' '+e.ty.map(tp).join(''),dexBody(e))).join(''):'<p class="mut">Scrivi almeno 2 lettere nel filtro per cercare una specie.</p>'}
+ return `${empty()}<div class="card"><div style="display:flex;flex-wrap:wrap;gap:6px">${ks.map(k=>`<button class="tab ${k==refK?'on':''}" data-act="ref" data-k="${esc(k)}">${k=='Topics'?'Regole per argomento':esc(k)}</button>`).join('')}</div><input id="flt" type="search" placeholder="Filtra per nome o testo…" value="${esc(FLT)}" style="margin-top:8px"></div><div class="card"><div id="refl">${body||'<p class="mut">Importa il manuale per riempire questa sezione.</p>'}</div></div>`}
+const moveBody=m=>`<p class="mut">Tipo ${esc(m.ty)} · ${esc(m.cat)} · Potenza ${esc(m.pw)}<br>Precisione: ${esc(m.ac)}<br>Danno: ${esc(m.dm)}</p><p><b>Effetto:</b> ${nl(m.ef)}</p><p><i>${nl(m.d)}</i></p>`;
+const dexBody=e=>`<p class="mut">${esc(e.cat)} · ${esc(e.h)} ${esc(e.w)} · PF base ${e.hp} · Rango suggerito ${esc(e.rank||'—')}<br>Abilità: ${esc(e.abt||'—')}<br>${esc(e.evo||'')}</p><p>${esc(e.d)}</p><p>${AK.map(a=>{const k=Object.keys(DK).find(x=>DK[x]==a);return a+' '+(e.at[k]||'?')+'/'+(e.mx[k]||'?')}).join(' · ')}</p>`+[0,1,2,3,4,5].map(r=>{const l=e.mv.filter(m=>m.r==r);return l.length?`<div><b>${MAXR[r]}:</b> ${l.map(m=>esc(m.n)).join(', ')}</div>`:''}).join('');
+function man(){return `<div class="card"><h2>Manuale</h2><p class="mut">Importa il PDF del manuale PokéRole (testo digitale, es. “Core Book 3.0”): viene letto sul dispositivo e resta salvato solo qui, senza internet. Occorrono 1–3 minuti. Più file si sommano.</p><div class="row"><input type="file" id="pdf" accept="application/pdf" multiple style="max-width:260px"><button class="x" data-act="clrcat">Cancella catalogo</button></div><div class="mut" id="imps">${CAT.v?`${CAT.dex.length} voci Pokédex, ${CAT.moves.length} mosse, ${CAT.ab.length} abilità, ${CAT.book.length} sezioni.<br>Fonti: ${esc(CAT.src.join(', '))}`:'Catalogo vuoto'}</div></div>
+ <div class="card"><h2>Copia di sicurezza personaggi</h2><textarea id="bk" placeholder="Codice esportato"></textarea><div class="row"><button class="o" data-act="exp">Esporta</button><button class="o" data-act="copy">Copia</button><button class="o" data-act="imp">Importa (aggiungi)</button><button class="o" data-act="impr">Importa (sostituisci)</button></div></div>`}
+function home(){return `<div class="card"><div class="row"><button data-act="newt">+ Nuovo Allenatore</button><button data-act="newp">+ Nuovo Pokémon</button></div></div>${empty()}<h3>Allenatori</h3><div class="g2">`+S.tr.map((c,i)=>`<div class="card"><div data-act="opent" data-i="${i}" style="cursor:pointer"><div class="big" style="font-size:20px">${esc(c.nome||'Senza nome')}</div><div class="mut">${esc(c.age)} · rango ${RK[c.rank][0]} · PF ${c.hp}/${hpMax(c,'t')}</div></div><button class="x" data-act="delt" data-i="${i}" style="margin-top:6px">Elimina</button></div>`).join('')+`</div><h3>Pokémon</h3><div class="g2">`+S.pk.map((c,i)=>{const sp=SP(c);return `<div class="card"><div data-act="openp" data-i="${i}" style="cursor:pointer"><div class="big" style="font-size:20px">${esc(c.nome||(sp&&sp.n)||'Senza nome')}</div><div>${sp?sp.ty.map(tp).join(''):''}</div><div class="mut">${esc(sp?sp.n:'—')} · rango ${RK[c.rank][0]} · PF ${c.hp}/${hpMax(c,'p')}${c.tr?' · '+esc(c.tr):''}</div></div><button class="x" data-act="delp" data-i="${i}" style="margin-top:6px">Elimina</button></div>`}).join('')+'</div>'}
+function doImport(rep){const el=document.getElementById('bk');try{const j=JSON.parse(el.value.trim());if(!j||!Array.isArray(j.tr))throw 0;
+ const t=j.tr.map(c=>Object.assign(def('t'),c)),p=(j.pk||[]).map(c=>Object.assign(def('p'),c));
+ if(rep){if(!confirm('Sostituire tutti i personaggi attuali?'))return false;S.tr=t;S.pk=p;if(j.gm)S.gm=Object.assign(S.gm,j.gm);S.cur=null}else{S.tr.push(...t);S.pk.push(...p)}
+ alert('Importati '+t.length+' allenatori e '+p.length+' Pokémon');return true}catch(x){alert('Testo non valido: incolla il codice esportato dall\'app.');return false}}
+let RND=0;
+function render(){if(RND)return;RND=1;try{render0()}finally{RND=0}}
+function render0(){const c=cur();if(tab=='sheet'&&!c)tab='home';const A=document.getElementById('app');
+ try{const ae=document.activeElement;if(ae&&ae!==document.body&&A.contains(ae))ae.blur()}catch(e){}
+ A.innerHTML=tab=='home'?home():tab=='sheet'?(S.cur.k=='t'?trainer(c):poke(c)):tab=='gm'?gmCard():tab=='info'?info():man();
+ document.querySelectorAll('.tab[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v==tab));
+ document.getElementById('nav').innerHTML='';save()}
+// ---------- eventi ----------
+const num=(t,v)=>t.type=='number'?Number(v)||0:v;
+function pset(p,v){if(p.startsWith('c.')){const c=cur();const k=p.slice(2).split('.');const l=k.pop();let o=c;k.forEach(x=>o=o[x]);o[l]=v}else if(p=='HP'||p=='WP'){const c=cur();c[p.toLowerCase()]=v}else put(p,v)}
+document.addEventListener('input',e=>{const t=e.target,p=t.dataset.p;
+ if(t.id=='flt'){FLT=t.value;const r=document.getElementById('refl');if(r){clearTimeout(window._ft);window._ft=setTimeout(()=>{const pos=t.selectionStart;render();const n=document.getElementById('flt');n.focus();n.setSelectionRange(pos,pos)},250)}return}
+ for(const[id,fn]of[['pkq',v=>pkq=v],['mvq',v=>mq=v],['gsq',v=>sq=v]])if(t.id==id){fn(t.value);const pos=t.selectionStart;render();const n=document.getElementById(id);n.focus();n.setSelectionRange(pos,pos);return}
+ if(t.dataset.ex!==undefined){cur().ex[+t.dataset.ex].n=t.value;save();return}
+ if(!p)return;let v=t.type=='checkbox'?(t.checked?1:0):num(t,t.value);pset(p,v);if(t.dataset.rc!==undefined&&t.type!='number'){render();return}save()});
+document.addEventListener('change',e=>{const t=e.target,p=t.dataset.p;
+ if(t.id=='pdf'&&t.files.length){importPdf([...t.files]);return}
+ if(t.id=='tps'){tpK=+t.value;render();return}
+ if(t.id=='mty'){mty=t.value;render();return}if(t.id=='mcat'){mcat=t.value;render();return}
+ if(t.dataset.gc!==undefined){const x=S.gm.list[+t.dataset.gc];if(t.value.trim()){x.cond=x.cond||[];x.cond.push(t.value.trim())}render();return}
+ if(p&&t.dataset.rcc!==undefined){let v=t.dataset.num!==undefined?Number(t.value):t.type=='checkbox'?(t.checked?1:0):num(t,t.value);pset(p,v);render()}
+ else if(p&&t.type=='number'&&t.dataset.rc!==undefined)render()});
+const D6=()=>1+Math.floor(Math.random()*6);
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;e.preventDefault();const a=t.dataset.act,i=+t.dataset.i,j=+t.dataset.j,v=+t.dataset.v,k=t.dataset.k,c=cur(),g=S.gm;
+ const bk=document.getElementById('bk'),dump=()=>JSON.stringify({pr:1,tr:S.tr,pk:S.pk,gm:S.gm});
+ const kc=S.cur&&S.cur.k;
+ if(a=='exp'){bk.value=dump();bk.focus();bk.select();return}
+ if(a=='copy'){if(!bk.value)bk.value=dump();bk.select();try{navigator.clipboard.writeText(bk.value)}catch(x){}try{document.execCommand('copy')}catch(x){}alert('Codice copiato');return}
+ if(a=='imp'||a=='impr'){if(!doImport(a=='impr'))return}
+ else if(a=='tab')tab=(t.dataset.v=='sheet')&&!c?'home':t.dataset.v;
+ else if(a=='newt'){S.tr.push(def('t'));S.cur={k:'t',i:S.tr.length-1};tab='sheet'}
+ else if(a=='newp'){const p=def('p');p.tr=t.dataset.tr||'';S.pk.push(p);S.cur={k:'p',i:S.pk.length-1};tab='sheet'}
+ else if(a=='opent'){S.cur={k:'t',i};tab='sheet'}else if(a=='openp'){S.cur={k:'p',i};tab='sheet'}
+ else if(a=='delt'){if(!confirm('Eliminare l’allenatore?'))return;S.tr.splice(i,1);S.cur=null}else if(a=='delp'){if(!confirm('Eliminare il Pokémon?'))return;S.pk.splice(i,1);S.cur=null}
+ else if(a=='clrcat'){if(confirm('Cancellare il catalogo importato?')){CAT=CAT0();idbSet('cat','')}else return}
+ else if(a=='ref'){refK=k;FLT=''}
+ else if(a=='at'){const l=lim(c,kc,k);c.at[k]=c.at[k]==v?v-1:v;c.at[k]=Math.max(1,Math.min(l,c.at[k]))}
+ else if(a=='so'){c.so[k]=Math.max(1,c.so[k]==v?v-1:v)}
+ else if(a=='sk'){c.sk[k]=(c.sk[k]||0)==v?v-1:v}
+ else if(a=='exadd')c.ex.push({n:'',v:0});else if(a=='exdel')c.ex.splice(i,1);else if(a=='exs'){c.ex[i].v=(c.ex[i].v||0)==v?v-1:v}
+ else if(a=='happy'||a=='loy'){c[a]=c[a]==v?v-1:v}else if(a=='badge'){c.badges=c.badges==v?v-1:v}
+ else if(a=='heal'){c.hp=hpMax(c,kc);c.wp=wpMax(c)}
+ else if(a=='init'){const r=D6(),bar=document.getElementById('rollbar');bar.style.display='block';bar.textContent='Iniziativa: 1d6 = '+r+' + '+ini(c)+' = '+(r+ini(c));setTimeout(()=>bar.style.display='none',15000);return}
+ else if(a=='rollfree'){RA=document.getElementById('ra').value;RS=document.getElementById('rs').value;RX=+document.getElementById('rx').value||0;RD=+document.getElementById('rd').value||0;
+  const pa=val(c,RA)[0],ps=RS?(c.sk[RS]||0):0,n=pa+ps+RX+(RS&&hasR(c,6)?2:0),pen=RA=='Vitality'?0:pain(c,kc);roll(RA+(RS?' + '+RS:''),n,RD,pen);return}
+ else if(a=='cadd'){const n=document.getElementById('cn').value.trim();if(n&&!c.cond.includes(n))c.cond.push(n)}else if(a=='cdel')c.cond.splice(i,1);
+ else if(a=='aadd')c.ach.push({t:'',d:0});else if(a=='adel')c.ach.splice(i,1);
+ else if(a=='pkpick'){const s=document.getElementById('pksel').value,e=CAT.dex.find(x=>spKey(x)==s);if(e){c.sp=s;pkq='';if(!c.nome)c.nome=e.n;const ri=rankIdx(e.rank);applySp(c,e);c.rank=Math.max(c.rank,0)}}
+ else if(a=='applysp'){const e=SP(c);if(e)applySp(c,e)}
+ else if(a=='mvadd2'){const n=document.getElementById('mvl').value;if(n&&!c.moves.includes(n))c.moves.push(n)}
+ else if(a=='mvadd'){if(!c.moves.includes(k))c.moves.push(k);mq=''}
+ else if(a=='mvcust'){const n=document.getElementById('mvc').value.trim();if(n)c.moves.push(n)}else if(a=='mvdel')c.moves.splice(i,1);
+ else if(a=='macc'||a=='mdmg'){const m=mv(c.moves[i]),sp=SP(c),pen=pain(c,'p');const stab=sp&&sp.ty.includes(m.ty)&&m.cat!='Support';
+  if(a=='macc'){const p=pool(c,m.ac);roll(m.n+' · Precisione',p.n,+(prompt('Successi richiesti (numero dell’azione nel round)?','1')||1),p.vit?0:pen)}
+  else{const p=pool(c,m.dm,stab?1:0);const net=roll(m.n+' · Danno',p.n,0,p.vit?0:pen);const bar=document.getElementById('rollbar');bar.innerHTML+=' · <b>Danno inflitto: '+Math.max(1,net)+'</b> (prima di difese e tipi)'}return}
+ else if(a=='gadd'){const n=document.getElementById('gn').value.trim();if(!n)return;const hp=+document.getElementById('gh').value||0,w=+document.getElementById('gw').value||0;g.list.push({n,init:+document.getElementById('gi').value||0,hp,hpm:hp,wp:w,wpm:w,cond:[],note:'',act:0})}
+ else if(a=='gadd1'){S.tr.map(x=>[x,'t']).concat(S.pk.map(x=>[x,'p'])).forEach(([x,kk])=>{const nm=x.nome||(SP(x)||{}).n||'?';if(!g.list.some(y=>y.src==kk+nm))g.list.push({src:kk+nm,n:nm,ty:kk=='p'&&SP(x)?SP(x).ty:null,init:D6()+ini(x),hp:x.hp,hpm:hpMax(x,kk),wp:x.wp,wpm:wpMax(x),cond:x.cond.slice(),note:'',act:0})})}
+ else if(a=='gwild'){const e=CAT.dex.find(x=>spKey(x)==k);if(e){const vit=e.at.VIT||1,hp=e.hp+vit,ins=e.at.INS||1,dx=e.at.DES||1;g.list.push({n:e.n,ty:e.ty,init:D6()+dx,hp,hpm:hp,wp:ins+3,wpm:ins+3,cond:[],note:'Valori base (Starter): adatta al rango',act:0})}}
+ else if(a=='gsort'){g.list.sort((x,y)=>y.init-x.init);g.turn=0}
+ else if(a=='gnext'){if(!g.list.length)return;g.turn++;if(g.turn>=g.list.length){g.turn=0;g.round++;g.list.forEach(x=>x.act=0)}}
+ else if(a=='gclr'){if(!confirm('Svuotare il combattimento?'))return;g.list=[];g.round=1;g.turn=0}
+ else if(a=='gdel'){g.list.splice(i,1);if(g.turn>=g.list.length)g.turn=0}
+ else if(a=='gdmg'||a=='gheal'){const n=+(document.getElementById('dm'+i)||{}).value||0,x=g.list[i];x.hp=Math.max(0,Math.min(x.hpm||1e9,(+x.hp||0)+(a=='gheal'?n:-n)))}
+ else if(a=='gcdel')g.list[i].cond.splice(j,1);else if(a=='gact'){const x=g.list[i];x.act=(x.act||0)==v?v-1:v}
+ else if(a=='groll'){roll('Dadi',+document.getElementById('gd').value||1,0,0);return}
+ render()});
+function applySp(c,e){const mp={FOR:'Strength',DES:'Dexterity',VIT:'Vitality',SPE:'Special',INS:'Insight'};Object.keys(mp).forEach(k=>{if(e.at[k])c.at[mp[k]]=e.at[k]});c.hp=hpMax(c,'p');c.wp=wpMax(c);const ab=(e.abt||'').split(/\s*&\s*/)[0];if(ab&&!c.ab)c.ab=ab}
+render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')&&location.hostname!=='localhost')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
